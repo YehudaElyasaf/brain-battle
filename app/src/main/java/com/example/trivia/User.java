@@ -5,5 +5,6 @@ public class User {
     private String username;
     private String password;
     private int coins;
-    private int grade;
+    private int totalCorrect;
+    private int totalWrong;
 }

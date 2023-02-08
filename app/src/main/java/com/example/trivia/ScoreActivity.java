@@ -1,5 +1,7 @@
 package com.example.trivia;
 
+import static com.example.trivia.StartGameActivity.MIN_SWIPE_LENGTH;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GestureDetectorCompat;
@@ -9,34 +11,17 @@ import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
-enum DifficultyLevel{
-    ALL,
-    EASY,
-    MEDIUM,
-    HARD
-}
-enum Category{
-    ALL,
-    GENERAL_KNOWLEDGE,
-    HISTORY,
-    SCIENCE,
-    PROGRAMMING
-}
-
-public class StartGameActivity extends AppCompatActivity
-        implements GestureDetector.OnGestureListener {
+public class ScoreActivity extends AppCompatActivity
+        implements GestureDetector.OnGestureListener{
     private GestureDetectorCompat swipeDetector;
-
-    public static final int MIN_SWIPE_LENGTH = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_start_game);
+        setContentView(R.layout.activity_score);
 
         swipeDetector = new GestureDetectorCompat(this, this);
     }
-
     @Override
     public boolean onDown(@NonNull MotionEvent e) {
         return false;
@@ -66,9 +51,10 @@ public class StartGameActivity extends AppCompatActivity
     public boolean onFling(@NonNull MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
         if(Math.abs(e2.getX() - e1.getX()) > MIN_SWIPE_LENGTH){
             //swipe
-            if(e2.getX() > e1.getX()){
-                //right swipe
-                Intent intent = new Intent(this, ScoreActivity.class);
+            if(e1.getX() > e2.getX()){
+                //left swipe
+
+                Intent intent = new Intent(this, StartGameActivity.class);
                 startActivity(intent);
             }
         }

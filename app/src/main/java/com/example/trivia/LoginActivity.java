@@ -2,6 +2,7 @@ package com.example.trivia;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -86,6 +87,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         mode = Mode.LOGIN;
         switchToLoginMode();
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        Intent i=new Intent(this, MainMenuActivity.class);
+        startActivity(i);
     }
 }

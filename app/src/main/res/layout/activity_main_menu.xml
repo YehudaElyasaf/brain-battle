@@ -23,6 +23,7 @@
       android:id="@+id/mainNavigationView"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      android:background="#e1e3e5"
       app:layout_constraintBottom_toBottomOf="parent"
       tools:layout_editor_absoluteX="165dp"
       app:menu="@menu/main_menu"/>

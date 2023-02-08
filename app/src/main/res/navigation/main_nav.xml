@@ -15,4 +15,9 @@
         android:name="com.example.trivia.ScoreFragment"
         android:label="fragment_score"
         tools:layout="@layout/fragment_score" />
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.trivia.SettingsFragment"
+        android:label="fragment_settings"
+        tools:layout="@layout/fragment_settings" />
 </navigation>

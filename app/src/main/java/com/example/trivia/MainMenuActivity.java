@@ -38,6 +38,7 @@ public class MainMenuActivity extends AppCompatActivity
     private BottomNavigationView navigationView;
     private StartGameFragment startGameFragment;
     private ScoreFragment scoreFragment;
+    private SettingsFragment settingFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,21 +48,24 @@ public class MainMenuActivity extends AppCompatActivity
         navigationView = findViewById(R.id.mainNavigationView);
         startGameFragment = new StartGameFragment();
         scoreFragment = new ScoreFragment();
+        settingFragment = new SettingsFragment();
         swipeDetector = new GestureDetectorCompat(this, this);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, startGameFragment).commit();
         navigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-
                 switch (item.getItemId()){
                     case R.id.startGameFragment:
-                        fragmentTransaction.replace(R.id.mainFragmentContainer, startGameFragment).commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, startGameFragment).commit();
                         return true;
 
                     case R.id.scoreFragment:
-                        fragmentTransaction.replace(R.id.mainFragmentContainer, scoreFragment).commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, scoreFragment).commit();
+                        return true;
+
+                    case R.id.settingsFragment:
+                        getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, settingFragment).commit();
                         return true;
                 }
 
@@ -103,21 +107,29 @@ public class MainMenuActivity extends AppCompatActivity
             //swipe
             if(e2.getX() > e1.getX()){
                 //right swipe
-                if(currentFragment instanceof ScoreFragment){
+                if(currentFragment instanceof StartGameFragment){
+                    fragmentTransaction.replace(R.id.mainFragmentContainer, scoreFragment).commit();
+                    navigationView.setSelectedItemId(R.id.scoreFragment);
+                }
+                else if(currentFragment instanceof SettingsFragment){
                     fragmentTransaction.replace(R.id.mainFragmentContainer, startGameFragment).commit();
                     navigationView.setSelectedItemId(R.id.startGameFragment);
                 }
             }
             else{
                 //left swipe
-                if(currentFragment instanceof StartGameFragment){
-                    fragmentTransaction.replace(R.id.mainFragmentContainer, scoreFragment).commit();
-                    navigationView.setSelectedItemId(R.id.scoreFragment);
+                if(currentFragment instanceof ScoreFragment){
+                    fragmentTransaction.replace(R.id.mainFragmentContainer, startGameFragment).commit();
+                    navigationView.setSelectedItemId(R.id.startGameFragment);
+                }
+                else if(currentFragment instanceof StartGameFragment){
+                    fragmentTransaction.replace(R.id.mainFragmentContainer, settingFragment).commit();
+                    navigationView.setSelectedItemId(R.id.settingsFragment);
                 }
             }
         }
 
-        return false;
+        return true;
     }
 
     @Override

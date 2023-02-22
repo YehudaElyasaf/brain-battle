@@ -16,20 +16,6 @@ import android.widget.AdapterView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
-enum DifficultyLevel{
-    ALL,
-    EASY,
-    MEDIUM,
-    HARD
-}
-enum Category{
-    ALL,
-    GENERAL_KNOWLEDGE,
-    HISTORY,
-    SCIENCE,
-    PROGRAMMING
-}
-
 public class MainMenuActivity extends AppCompatActivity
         implements GestureDetector.OnGestureListener {
     public static final int MIN_SWIPE_LENGTH = 100;
@@ -52,6 +38,8 @@ public class MainMenuActivity extends AppCompatActivity
         swipeDetector = new GestureDetectorCompat(this, this);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, startGameFragment).commit();
+        navigationView.setSelectedItemId(R.id.startGameFragment);
+
         navigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {

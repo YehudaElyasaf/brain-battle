@@ -1,14 +1,156 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
     tools:context=".StartGameFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="st game" />
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/categoryLbl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Category"
+        android:textSize="24sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/allCategoriesBtn"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="All"
+            android:background="#FFFFFF"
+            android:textAllCaps="false"
+            android:textSize="22sp"/>
+
+        <Button
+            android:id="@+id/generalKnowledgeCategoryBtn"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="General Knowledge"
+            android:background="#FFFFFF"
+            android:textAllCaps="false"
+            android:textSize="22sp"/>
+
+        <Button
+            android:id="@+id/scienceCategoryBtn"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="Science"
+            android:background="#FFFFFF"
+            android:textAllCaps="false"
+            android:textSize="22sp"/>
+
+        <Button
+            android:id="@+id/computerScienceCategoryBtn"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="Computer Science"
+            android:background="#FFFFFF"
+            android:textAllCaps="false"
+            android:textSize="22sp"/>
+    </LinearLayout>
+
+
+        <TextView
+            android:id="@+id/difficultyLevelLbl"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Difficulty Level"
+            android:layout_marginTop="15dp"
+            android:textSize="24sp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/easyDifficultyLevelBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingVertical="20dp"
+            android:text=" Easy "
+            android:textSize="24dp"
+            android:backgroundTint="#4CAF50"/>
+
+        <Button
+            android:id="@+id/mediumDifficultyLevelBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingVertical="20dp"
+            android:text="Medium"
+            android:textSize="24dp"
+            android:backgroundTint="#FFC107"/>
+
+        <Button
+            android:id="@+id/hardDifficultyLevelBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingVertical="20dp"
+            android:text=" Hard "
+            android:textSize="24dp"
+            android:backgroundTint="#F44336"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/questionCountLbl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Number Of Questions"
+        android:layout_marginTop="15dp"
+        android:textSize="24sp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/questionCountDecBtn"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:text="-"
+            android:textAlignment="center"
+            android:textSize="30sp"
+            android:textStyle="bold"/>
+
+
+        <TextView
+            android:id="@+id/questionCountValueLbl"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:text="0"
+            android:textSize="42sp"
+            android:layout_marginHorizontal="20dp"
+            android:textAlignment="center"/>
+
+        <Button
+            android:id="@+id/questionCountIncBtn"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:text="+"
+            android:textAlignment="center"
+            android:textSize="30sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/playBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Play!"
+        android:textSize="64sp"
+        android:layout_marginTop="20dp"/>
+</LinearLayout>

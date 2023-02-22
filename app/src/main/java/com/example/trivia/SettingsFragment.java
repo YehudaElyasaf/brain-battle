@@ -7,13 +7,19 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.SeekBar;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link SettingsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SettingsFragment extends Fragment {
+public class SettingsFragment extends Fragment implements View.OnClickListener {
+    private ImageButton deleteUserBtn;
+    private ImageButton editUsernameBtn;
+    private ImageButton muteBtn;
+    private SeekBar volumeSb;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -55,10 +61,46 @@ public class SettingsFragment extends Fragment {
         }
     }
 
+    private void initViews(View v){
+        deleteUserBtn = v.findViewById(R.id.deleteUserImgBtn);
+        editUsernameBtn = v.findViewById(R.id.editUsernameImgBtn);
+        muteBtn = v.findViewById(R.id.muteImgBtn);
+        volumeSb = v.findViewById(R.id.volumeSb);
+
+        deleteUserBtn.setOnClickListener(this);
+        editUsernameBtn.setOnClickListener(this);
+        muteBtn.setOnClickListener(this);
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_settings, container, false);
+        View view =inflater.inflate(R.layout.fragment_settings, container, false);
+        initViews(view);
+
+        return view;
+    }
+
+
+    private void toggleMute(){
+        if(volumeSb.isEnabled()){
+            muteBtn.setImageDrawable(requireActivity().getDrawable(R.drawable.ic_volume_off));
+            volumeSb.setEnabled(false);
+        }else{
+            muteBtn.setImageDrawable(requireActivity().getDrawable(R.drawable.ic_volume));
+            volumeSb.setEnabled(true);
+        }
+    }
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()){
+            case R.id.deleteUserImgBtn:
+                break;
+            case R.id.editUsernameImgBtn:
+                break;
+            case R.id.muteImgBtn:
+                toggleMute();
+                break;
+        }
     }
 }

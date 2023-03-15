@@ -18,6 +18,7 @@ import android.widget.SeekBar;
 public class SettingsFragment extends Fragment implements View.OnClickListener {
     private ImageButton deleteUserBtn;
     private ImageButton editUsernameBtn;
+    private ImageButton logoutBtn;
     private ImageButton muteBtn;
     private SeekBar volumeSb;
 
@@ -64,6 +65,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
     private void initViews(View v){
         deleteUserBtn = v.findViewById(R.id.deleteUserImgBtn);
         editUsernameBtn = v.findViewById(R.id.editUsernameImgBtn);
+        logoutBtn = v.findViewById(R.id.logoutImgBtn);
         muteBtn = v.findViewById(R.id.muteImgBtn);
         volumeSb = v.findViewById(R.id.volumeSb);
 
@@ -97,6 +99,8 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
             case R.id.deleteUserImgBtn:
                 break;
             case R.id.editUsernameImgBtn:
+                break;
+            case R.id.logoutImgBtn:
                 break;
             case R.id.muteImgBtn:
                 toggleMute();

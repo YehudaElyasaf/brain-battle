@@ -1,12 +1,19 @@
 package com.example.trivia;
 
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.mikhaellopez.circularprogressbar.CircularProgressBar;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -14,51 +21,42 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class ScoreFragment extends Fragment {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    RecyclerView scoreRv;
 
     public ScoreFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment scoreFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ScoreFragment newInstance(String param1, String param2) {
-        ScoreFragment fragment = new ScoreFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_score, container, false);
+        View v = inflater.inflate(R.layout.fragment_score, container, false);
+        scoreRv = v.findViewById(R.id.scoreRv);
+
+        ArrayList<User> users = new ArrayList<User>();
+        users.add(new User(100, "yehuda", "100", 100, 0));
+        users.add(new User(100, "arie", "100", 21400, 7500));
+        users.add(new User(100, "elyasaf", "100", 100, 3));
+        users.add(new User(100, "another user", "100", 100, 15));
+
+        users.sort((o1, o2) -> (int)(o2.calculateScore() - o1.calculateScore()));
+        ScoreListAdapter scoreListAdapter = new ScoreListAdapter(requireContext(), users);
+        scoreRv.setAdapter(scoreListAdapter);
+        scoreRv.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        CircularProgressBar successPercentagePb = v.findViewById(R.id.successPercentagePb);
+        successPercentagePb.setProgressWithAnimation(60, (long)1000);
+        successPercentagePb.setProgressBarColor(Color.GREEN);
+        successPercentagePb.setProgressBarWidth(15);
+        successPercentagePb.setBackgroundProgressBarColor(Color.RED);
+        successPercentagePb.setBackgroundProgressBarWidth(10);
+
+        return v;
     }
 }

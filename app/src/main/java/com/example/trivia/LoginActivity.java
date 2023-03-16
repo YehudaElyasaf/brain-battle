@@ -88,7 +88,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mode = Mode.LOGIN;
         switchToLoginMode();
 
-        Intent i=new Intent(this, MainMenuActivity.class);
+        Intent i=new Intent(this, GameActivity.class);
         startActivity(i);
         finish();
     }

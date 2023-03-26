@@ -12,7 +12,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
-enum Mode{
+enum Mode {
     LOGIN,
     SIGNUP
 }
@@ -28,14 +28,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private Mode mode;
 
-    private void switchToLoginMode(){
+    private void switchToLoginMode() {
         loginButton.setText("Log In");
         toggleLoginModeLbl.setText("Don't have a user?");
         toggleLoginModeLink.setText("SIGN UP");
         passwordAgainTxt.setVisibility(View.GONE);
         mode = Mode.LOGIN;
     }
-    private void switchToSignupMode(){
+
+    private void switchToSignupMode() {
         loginButton.setText("Sign Up");
         toggleLoginModeLbl.setText("Already have a user?");
         toggleLoginModeLink.setText("LOG IN");
@@ -43,27 +44,28 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mode = Mode.SIGNUP;
     }
 
-    private void login(){
+    private void login() {
 
     }
-    private void signup(){
+
+    private void signup() {
 
     }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.loginBtn:
-                if(mode == Mode.LOGIN)
+                if (mode == Mode.LOGIN)
                     login();
-                else if(mode == Mode.SIGNUP)
+                else if (mode == Mode.SIGNUP)
                     signup();
                 break;
 
             case R.id.toggleLoginModeLink:
-                if(mode == Mode.LOGIN)
+                if (mode == Mode.LOGIN)
                     switchToSignupMode();
-                else if(mode == Mode.SIGNUP)
+                else if (mode == Mode.SIGNUP)
                     switchToLoginMode();
                 break;
         }
@@ -88,7 +90,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mode = Mode.LOGIN;
         switchToLoginMode();
 
-        Intent i=new Intent(this, GameActivity.class);
+        Intent i = new Intent(this, GameActivity.class);
         startActivity(i);
         finish();
     }

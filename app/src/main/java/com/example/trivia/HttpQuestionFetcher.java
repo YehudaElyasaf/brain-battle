@@ -1,6 +1,7 @@
 package com.example.trivia;
 
 
+import android.text.Html;
 import android.text.PrecomputedText;
 
 import org.json.JSONArray;
@@ -13,17 +14,22 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Locale;
+
 
 
 public class HttpQuestionFetcher implements IQuestionFetcher {
     private static final String DATABASE_URL_ADDRESS = "https://opentdb.com/api.php";
 
     private static final int OK_RESPONSE_CODE = 0;
+    private static final int GENERAL_KNOWLEDGE_CATEGORY_ID = 9;
+    private static final int SCIENCE_CATEGORY_ID = 17;
+    private static final int COMPUTER_SCIENCE_CATEGORY_ID = 18;
 
     private String response;
 
     @Override
-    public ArrayList<Question> getQuestions(int questionCount, DifficultyLevel difficultyLevel, Category category) {
+    public ArrayList<Question> getQuestions(int questionCount, int difficultyLevel, int category) {
         response = "";
         //run in other thread, because networking isn't allowed in main thread
         Thread sendThread = new Thread(new Runnable() {
@@ -61,10 +67,10 @@ public class HttpQuestionFetcher implements IQuestionFetcher {
             //fetching failed
             return null;
 
-        return deserializeQuestions(difficultyLevel, category);
+        return deserializeQuestions(DifficultyLevel.values()[difficultyLevel], Category.values()[category]);
     }
 
-    private String getParams(int questionCount, DifficultyLevel difficultyLevel, Category category) {
+    private String getParams(int questionCount, int difficultyLevel, int category) {
         String params = "";
 
         params += "?amount=";
@@ -73,21 +79,21 @@ public class HttpQuestionFetcher implements IQuestionFetcher {
         params += "&type=multiple";
 
         params += "&difficulty=";
-        if (difficultyLevel == DifficultyLevel.EASY)
+        if (difficultyLevel == DifficultyLevel.EASY.ordinal())
             params += "easy";
-        else if (difficultyLevel == DifficultyLevel.MEDIUM)
+        else if (difficultyLevel == DifficultyLevel.MEDIUM.ordinal())
             params += "medium";
-        else if (difficultyLevel == DifficultyLevel.HARD)
+        else if (difficultyLevel == DifficultyLevel.HARD.ordinal())
             params += "hard";
 
-        if (category != Category.ALL) {
+        if (category != Category.ALL.ordinal()) {
             params += "&category=";
-            if (category == Category.GENERAL_KNOWLEDGE)
-                params += Integer.toString(9);
-            else if (category == Category.SCIENCE)
-                params += Integer.toString(17);
-            else if (category == Category.COMPUTER_SCIENCE)
-                params += Integer.toString(18);
+            if (category == Category.GENERAL_KNOWLEDGE.ordinal())
+                params += Integer.toString(GENERAL_KNOWLEDGE_CATEGORY_ID);
+            else if (category == Category.SCIENCE.ordinal())
+                params += Integer.toString(SCIENCE_CATEGORY_ID);
+            else if (category == Category.COMPUTER_SCIENCE.ordinal())
+                params += Integer.toString(COMPUTER_SCIENCE_CATEGORY_ID);
         }
 
         return params;
@@ -98,12 +104,12 @@ public class HttpQuestionFetcher implements IQuestionFetcher {
         try {
             JSONObject jsonObject = new JSONObject(response);
             int responseCode = Integer.parseInt(jsonObject.getString("response_code"));
-            if(responseCode != OK_RESPONSE_CODE)
+            if (responseCode != OK_RESPONSE_CODE)
                 return null;
 
             JSONArray questionsJsonObject = jsonObject.getJSONArray("results");
 
-            for(int i=0; i<jsonObject.length(); i++){
+            for (int i = 0; i < questionsJsonObject.length(); i++) {
                 JSONObject questionJsonObject = questionsJsonObject.getJSONObject(i);
                 Question question = new Question();
 
@@ -114,13 +120,23 @@ public class HttpQuestionFetcher implements IQuestionFetcher {
                 question.setQuestion(questionString);
 
                 String correctAnswer = questionJsonObject.getString("correct_answer");
-                question.setCorrectAnswer(correctAnswer);
 
-                JSONArray incorrectAnswerJsonArray = questionJsonObject.getJSONArray("incorrect_answers");
-                String[] incorrectAnswers = new String[incorrectAnswerJsonArray.length()];
-                for(int j=0; j<incorrectAnswerJsonArray.length(); j++)
-                    incorrectAnswers[j] = incorrectAnswerJsonArray.getString(j);
-                question.setIncorrectAnswers(incorrectAnswers);
+                JSONArray incorrectAnswersJsonArray = questionJsonObject.getJSONArray("incorrect_answers");
+                String[] answers = new String[incorrectAnswersJsonArray.length() + 1]; //+1 for correct answer
+
+                int j;
+                for (j = 0; j < incorrectAnswersJsonArray.length(); j++)
+                    answers[j] = incorrectAnswersJsonArray.getString(j);
+                answers[j] = correctAnswer;
+
+                for(j = 0; j < answers.length; j++){
+                    answers[j] = Html.fromHtml(answers[j], Html.FROM_HTML_MODE_LEGACY).toString();
+                }
+                question.setQuestion(Html.fromHtml(question.getQuestion(), Html.FROM_HTML_MODE_LEGACY).toString());
+
+                question.setAnswers(answers);
+                //TODO: shuffle answers
+                question.setCorrectAnswer(1);
 
                 questions.add(question);
             }

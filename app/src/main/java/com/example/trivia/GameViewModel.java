@@ -8,9 +8,20 @@ public class GameViewModel extends ViewModel {
     private ArrayList<Question> questions;
     private int currentQuestionIndex;
 
+    public int getTotalCorrect() {
+        return totalCorrect;
+    }
+
+    public void setTotalCorrect(int totalCorrect) {
+        this.totalCorrect = totalCorrect;
+    }
+
+    private int totalCorrect;
+
     public GameViewModel() {
         questions = null;
         currentQuestionIndex = 0;
+        totalCorrect = 0;
     }
 
     public int getCurrentQuestionIndex() {

@@ -135,8 +135,8 @@ public class HttpQuestionFetcher implements IQuestionFetcher {
                 question.setQuestion(Html.fromHtml(question.getQuestion(), Html.FROM_HTML_MODE_LEGACY).toString());
 
                 question.setAnswers(answers);
+                question.setCorrectAnswer(j - 1);
                 //TODO: shuffle answers
-                question.setCorrectAnswer(1);
 
                 questions.add(question);
             }

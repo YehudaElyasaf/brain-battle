@@ -7,9 +7,11 @@
     tools:context=".GameActivity"
     android:orientation="vertical"
     android:id="@+id/gameLayout">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <TextView
             android:id="@+id/questionLbl"
             android:layout_width="match_parent"
@@ -31,7 +33,6 @@
             android:layout_marginTop="30dp"
             android:layout_marginEnd="40dp"
             android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@+id/isCorrectLbl"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/questionLbl">
@@ -73,34 +74,22 @@
             android:layout_marginEnd="156dp"
             android:backgroundTint="#00000000"
             android:scaleType="centerInside"
-            app:layout_constraintBottom_toTopOf="@+id/gameQuestionPb"
+            app:layout_constraintBottom_toTopOf="@+id/progressImg"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.545"
             app:layout_constraintStart_toStartOf="parent"
             app:srcCompat="@drawable/ic_microphone" />
 
-        <ProgressBar
-            android:id="@+id/gameQuestionPb"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+        <ImageView
+            android:id="@+id/progressImg"
+            android:layout_width="0dp"
+            android:layout_height="5dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:id="@+id/isCorrectLbl"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="185dp"
-            android:layout_marginEnd="185dp"
-            android:layout_marginBottom="76dp"
-            android:text="Correct!"
-            app:layout_constraintBottom_toTopOf="@+id/recordImgBtn"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.555"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            android:textAlignment="center"/>
+            app:srcCompat="@drawable/ic_launcher_background" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

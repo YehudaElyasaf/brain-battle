@@ -1,8 +1,10 @@
 package com.example.trivia;
 
+import java.util.ArrayList;
+
 public class Question {
     String question;
-    String[] answers;
+    ArrayList<String> answers;
     int correctAnswer;
     Category category;
     DifficultyLevel difficultyLevel;
@@ -19,6 +21,14 @@ public class Question {
         return category;
     }
 
+    public ArrayList<String> getAnswers() {
+        return answers;
+    }
+
+    public void setAnswers(ArrayList<String> answers) {
+        this.answers = answers;
+    }
+
     public void setCategory(Category category) {
         this.category = category;
     }
@@ -29,14 +39,6 @@ public class Question {
 
     public void setDifficultyLevel(DifficultyLevel difficultyLevel) {
         this.difficultyLevel = difficultyLevel;
-    }
-
-    public String[] getAnswers() {
-        return answers;
-    }
-
-    public void setAnswers(String[] answers) {
-        this.answers = answers;
     }
 
     public int getCorrectAnswer() {

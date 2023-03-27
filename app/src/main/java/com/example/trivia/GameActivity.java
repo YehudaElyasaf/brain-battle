@@ -8,11 +8,10 @@ import androidx.lifecycle.ViewModelProvider;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.SurfaceView;
+import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -21,14 +20,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener {
     private TextView questionLbl;
-    private Button answer1Btn;
-    private Button answer2Btn;
-    private Button answer3Btn;
-    private Button answer4Btn;
+    private Button[] answerBtns;
 
     private ImageView progressImg;
     Canvas pbCanvas;
@@ -38,9 +33,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private GameViewModel gameViewModel;
     private Fragment loadGameActivity;
 
-    static final int QUESTIONS_COUNT_INDEX = 0;
-    static final int DIFFICULTY_LEVEL_INDEX = 1;
-    static final int CATEGORY_INDEX = 2;
+    public static final int QUESTIONS_COUNT_INDEX = 0;
+    public static final int DIFFICULTY_LEVEL_INDEX = 1;
+    public static final int CATEGORY_INDEX = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,25 +43,25 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_game);
 
         questionLbl = findViewById(R.id.questionLbl);
-        answer1Btn = findViewById(R.id.answer1Btn);
-        answer2Btn = findViewById(R.id.answer2Btn);
-        answer3Btn = findViewById(R.id.answer3Btn);
-        answer4Btn = findViewById(R.id.answer4Btn);
+        answerBtns = new Button[4];
+        answerBtns[0] = findViewById(R.id.answer0Btn);
+        answerBtns[1] = findViewById(R.id.answer1Btn);
+        answerBtns[2] = findViewById(R.id.answer2Btn);
+        answerBtns[3] = findViewById(R.id.answer3Btn);
 
         recordImgBtn = findViewById(R.id.recordImgBtn);
         progressImg = findViewById(R.id.progressImg);
 
         gameViewModel = new ViewModelProvider(this).get(GameViewModel.class);
 
-        answer1Btn.setOnClickListener(this);
-        answer2Btn.setOnClickListener(this);
-        answer3Btn.setOnClickListener(this);
-        answer4Btn.setOnClickListener(this);
+        for (Button answer : answerBtns)
+            answer.setOnClickListener(this);
         recordImgBtn.setOnClickListener(this);
 
-        int questionsCount = 4;
-        DifficultyLevel difficultyLevel = DifficultyLevel.EASY;
-        Category category = Category.GENERAL_KNOWLEDGE;
+        int[] extras = getIntent().getIntArrayExtra("extras");
+        int questionsCount = extras[QUESTIONS_COUNT_INDEX];
+        DifficultyLevel difficultyLevel = DifficultyLevel.values()[extras[DIFFICULTY_LEVEL_INDEX]];
+        Category category = Category.values()[extras[CATEGORY_INDEX]];
 
         GetQuestionsAsync getQuestionsAsync = new GetQuestionsAsync();
         getQuestionsAsync.execute(questionsCount, difficultyLevel.ordinal(), category.ordinal());
@@ -122,34 +117,53 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         Question question = gameViewModel.getCurrentQuestion();
 
         questionLbl.setText(question.getQuestion());
-        answer1Btn.setText(question.getAnswers()[0]);
-        answer2Btn.setText(question.getAnswers()[1]);
-        answer3Btn.setText(question.getAnswers()[2]);
-        answer4Btn.setText(question.getAnswers()[3]);
+        for (int i = 0; i < answerBtns.length; i++)
+            answerBtns[i].setText(question.getAnswers().get(i));
+
+        int color = getResources().getColor(R.color.main_color_500);
+        for (Button answer : answerBtns)
+            answer.setBackgroundColor(getResources().getColor(R.color.main_color_500));
+
+        for(Button answerBtn : answerBtns)
+            answerBtn.setEnabled(true);
+        recordImgBtn.setEnabled(true);
     }
 
-    private void chooseAnswer(int answerIndex) {
+    private void chooseAnswer(int answerIndex, Button answerButton) {
         boolean isCorrect = gameViewModel.getCurrentQuestion().correctAnswer == answerIndex;
         if (isCorrect) {
-            //TODO: change color to green
+            answerButton.setBackgroundColor(MyColor.CORRECT_GREEN);
+
             gameViewModel.setTotalCorrect(gameViewModel.getTotalCorrect() + 1);
         } else {
-            //TODO: change color to red
+            answerButton.setBackgroundColor(MyColor.WRONG_RED);
+
+            answerBtns[gameViewModel.getCurrentQuestion().correctAnswer].setBackgroundColor(MyColor.CORRECT_GREEN);
         }
-        drawOnQuestionProgressBar(isCorrect, gameViewModel.getCurrentQuestionIndex(), gameViewModel.getQuestions().size());
+        drawIsCorrectOnProgressBar(isCorrect, gameViewModel.getCurrentQuestionIndex(), gameViewModel.getQuestions().size());
+
         gameViewModel.setCurrentQuestionIndex(gameViewModel.getCurrentQuestionIndex() + 1);
 
-        if (gameViewModel.getCurrentQuestionIndex() == gameViewModel.getQuestions().size()) {
-            //TODO: pass results to next screen
-            Intent intent = new Intent(this, EndGameActivity.class);
-            startActivity(intent);
-            finish();
-        } else {
-            showCurrentQuestion();
-        }
+        for(Button answerBtn : answerBtns)
+            answerBtn.setEnabled(false);
+        recordImgBtn.setEnabled(false);
+
+        Intent intent = new Intent(this, EndGameActivity.class);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (gameViewModel.getCurrentQuestionIndex() == gameViewModel.getQuestions().size()) {
+                    //TODO: pass results to next screen
+                    startActivity(intent);
+                    finish();
+                } else {
+                    showCurrentQuestion();
+                }
+            }
+        }, 1000);
     }
 
-    private void initProgressBarCanvas(){
+    private void initProgressBarCanvas() {
         //draw question progress bar
         Paint paint = new Paint();
         paint.setColor(0xAACCCCCC); //light gray
@@ -161,12 +175,23 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         progressImg.setImageBitmap(progressBitmap);
     }
 
-    private void drawOnQuestionProgressBar(boolean isCorrect, int currentQuestion, int totalQuestions) {
+    private void drawQuestionSeparatorOnProgressBar(int currentQuestion, int totalQuestions) {
         Paint paint = new Paint();
-        if(isCorrect)
-            paint.setColor(Color.GREEN);
+        paint.setColor(MyColor.GOLD);
+
+        int start = (currentQuestion * (pbCanvas.getWidth() / totalQuestions)) - 10;
+        int end = (currentQuestion * (pbCanvas.getWidth() / totalQuestions)) + 10;
+        pbCanvas.drawRect(start, 0, end, pbCanvas.getHeight(), paint);
+
+        progressImg.setImageBitmap(progressBitmap);
+    }
+
+    private void drawIsCorrectOnProgressBar(boolean isCorrect, int currentQuestion, int totalQuestions) {
+        Paint paint = new Paint();
+        if (isCorrect)
+            paint.setColor(MyColor.CORRECT_GREEN);
         else
-            paint.setColor(Color.RED);
+            paint.setColor(MyColor.WRONG_RED);
 
         int start = currentQuestion * (pbCanvas.getWidth() / totalQuestions);
         int end = (currentQuestion + 1) * (pbCanvas.getWidth() / totalQuestions);
@@ -178,17 +203,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.answer0Btn:
+                chooseAnswer(0, (Button) v);
+                break;
             case R.id.answer1Btn:
-                chooseAnswer(0);
+                chooseAnswer(1, (Button) v);
                 break;
             case R.id.answer2Btn:
-                chooseAnswer(1);
+                chooseAnswer(2, (Button) v);
                 break;
             case R.id.answer3Btn:
-                chooseAnswer(2);
-                break;
-            case R.id.answer4Btn:
-                chooseAnswer(3);
+                chooseAnswer(3, (Button) v);
                 break;
 
             case R.id.recordImgBtn:

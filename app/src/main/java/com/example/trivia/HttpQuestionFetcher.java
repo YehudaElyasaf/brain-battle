@@ -14,8 +14,10 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
-
 
 
 public class HttpQuestionFetcher implements IQuestionFetcher {
@@ -122,21 +124,23 @@ public class HttpQuestionFetcher implements IQuestionFetcher {
                 String correctAnswer = questionJsonObject.getString("correct_answer");
 
                 JSONArray incorrectAnswersJsonArray = questionJsonObject.getJSONArray("incorrect_answers");
-                String[] answers = new String[incorrectAnswersJsonArray.length() + 1]; //+1 for correct answer
+                ArrayList<String> answers = new ArrayList<>();
 
-                int j;
-                for (j = 0; j < incorrectAnswersJsonArray.length(); j++)
-                    answers[j] = incorrectAnswersJsonArray.getString(j);
-                answers[j] = correctAnswer;
+                for (int j = 0; j < incorrectAnswersJsonArray.length(); j++)
+                    answers.add(incorrectAnswersJsonArray.getString(j));
+                answers.add(correctAnswer);
 
-                for(j = 0; j < answers.length; j++){
-                    answers[j] = Html.fromHtml(answers[j], Html.FROM_HTML_MODE_LEGACY).toString();
-                }
+                for (int j = 0; j < answers.size(); j++)
+                    answers.set(j, Html.fromHtml(answers.get(j), Html.FROM_HTML_MODE_LEGACY).toString());
                 question.setQuestion(Html.fromHtml(question.getQuestion(), Html.FROM_HTML_MODE_LEGACY).toString());
 
+                Collections.shuffle(answers);
                 question.setAnswers(answers);
-                question.setCorrectAnswer(j - 1);
-                //TODO: shuffle answers
+
+                //check the correct answer's index
+                for(int j=0;j<answers.size();j++)
+                    if(answers.get(j).equals(correctAnswer))
+                        question.setCorrectAnswer(j);
 
                 questions.add(question);
             }

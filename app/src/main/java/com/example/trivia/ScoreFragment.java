@@ -52,9 +52,9 @@ public class ScoreFragment extends Fragment {
 
         CircularProgressBar successPercentagePb = v.findViewById(R.id.successPercentagePb);
         successPercentagePb.setProgressWithAnimation(60, (long)1000);
-        successPercentagePb.setProgressBarColor(Color.GREEN);
+        successPercentagePb.setProgressBarColor(MyColor.CORRECT_GREEN);
         successPercentagePb.setProgressBarWidth(15);
-        successPercentagePb.setBackgroundProgressBarColor(Color.RED);
+        successPercentagePb.setBackgroundProgressBarColor(MyColor.WRONG_RED);
         successPercentagePb.setBackgroundProgressBarWidth(10);
 
         return v;

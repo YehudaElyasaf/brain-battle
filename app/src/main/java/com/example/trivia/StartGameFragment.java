@@ -7,6 +7,7 @@ import static com.example.trivia.Category.SCIENCE;
 import static com.example.trivia.DifficultyLevel.EASY;
 import static com.example.trivia.DifficultyLevel.HARD;
 import static com.example.trivia.DifficultyLevel.MEDIUM;
+import static com.example.trivia.GameActivity.*;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -223,9 +224,11 @@ public class StartGameFragment extends Fragment
 
             case R.id.playBtn:
                 Intent intent = new Intent(requireActivity(), GameActivity.class);
-                intent.putExtra("CATEGORY", category);
-                intent.putExtra("DIFFICULTY_LEVEL", difficultyLevel);
-                intent.putExtra("QUESTION_COUNT", questionCount);
+                int extras[] = new int[3];
+                extras[QUESTIONS_COUNT_INDEX] = questionCount;
+                extras[DIFFICULTY_LEVEL_INDEX] = difficultyLevel.ordinal();
+                extras[CATEGORY_INDEX] = category.ordinal();
+                intent.putExtra("extras", extras);
 
                 startActivity(intent);
                 requireActivity().finish();

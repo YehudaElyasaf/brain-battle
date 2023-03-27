@@ -15,7 +15,7 @@
         <TextView
             android:id="@+id/questionLbl"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_marginStart="20dp"
             android:layout_marginTop="30dp"
             android:layout_marginEnd="20dp"
@@ -27,8 +27,8 @@
 
         <LinearLayout
             android:id="@+id/linearLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="340dp"
+            android:layout_height="307dp"
             android:layout_marginStart="40dp"
             android:layout_marginTop="30dp"
             android:layout_marginEnd="40dp"
@@ -38,28 +38,28 @@
             app:layout_constraintTop_toBottomOf="@+id/questionLbl">
 
             <Button
-                android:id="@+id/answer1Btn"
+                android:id="@+id/answer0Btn"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:text="This is the first answer" />
 
             <Button
-                android:id="@+id/answer2Btn"
+                android:id="@+id/answer1Btn"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:text="This is the second answer" />
 
             <Button
-                android:id="@+id/answer3Btn"
+                android:id="@+id/answer2Btn"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:text="This is the third answer" />
 
             <Button
-                android:id="@+id/answer4Btn"
+                android:id="@+id/answer3Btn"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"

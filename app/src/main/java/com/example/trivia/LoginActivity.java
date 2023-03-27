@@ -1,5 +1,9 @@
 package com.example.trivia;
 
+import static com.example.trivia.GameActivity.CATEGORY_INDEX;
+import static com.example.trivia.GameActivity.DIFFICULTY_LEVEL_INDEX;
+import static com.example.trivia.GameActivity.QUESTIONS_COUNT_INDEX;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -90,8 +94,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mode = Mode.LOGIN;
         switchToLoginMode();
 
-        Intent i = new Intent(this, GameActivity.class);
-        startActivity(i);
+        /*
+
+        int extras[] = new int[3];
+        extras[QUESTIONS_COUNT_INDEX] = 4;
+        extras[DIFFICULTY_LEVEL_INDEX] = 0;
+        extras[CATEGORY_INDEX] = 3;
+        intent.putExtra("extras", extras);
+        startActivity(intent);
+        finish();
+        */
+
+        Intent intent = new Intent(this, MainMenuActivity.class);
+        startActivity(intent);
         finish();
     }
 }

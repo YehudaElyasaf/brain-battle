@@ -6,9 +6,18 @@
     tools:context=".LoadGameFragment"
     android:background="#FFFFFFFF">
 
+    <ProgressBar
+        android:id="@+id/progressBar2"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"/>
+
     <TextView
-        android:id="@+id/textView2a"
+        android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Loading game..." />
+        android:layout_gravity="center"
+        android:text="Loading..."
+        android:textAppearance="@style/TextAppearance.AppCompat.Display3" />
 </FrameLayout>

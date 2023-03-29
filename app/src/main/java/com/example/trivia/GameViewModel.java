@@ -6,22 +6,21 @@ import java.util.ArrayList;
 
 public class GameViewModel extends ViewModel {
     private ArrayList<Question> questions;
+    private ArrayList<Boolean> isCorrectList; //each cell represents the question in the same index
     private int currentQuestionIndex;
-
-    public int getTotalCorrect() {
-        return totalCorrect;
-    }
-
-    public void setTotalCorrect(int totalCorrect) {
-        this.totalCorrect = totalCorrect;
-    }
-
-    private int totalCorrect;
 
     public GameViewModel() {
         questions = null;
+        isCorrectList = null;
         currentQuestionIndex = 0;
-        totalCorrect = 0;
+    }
+
+    public ArrayList<Boolean> getIsCorrectList() {
+        return isCorrectList;
+    }
+
+    public void setIsCorrectList(ArrayList<Boolean> isCorrectList) {
+        this.isCorrectList = isCorrectList;
     }
 
     public int getCurrentQuestionIndex() {
@@ -42,7 +41,16 @@ public class GameViewModel extends ViewModel {
         return questions;
     }
 
-    public Question getCurrentQuestion(){
+    public Question getCurrentQuestion() {
         return questions.get(currentQuestionIndex);
+    }
+
+    public int getTotalCorrect(){
+        int count = 0;
+        for(boolean isCorrect : isCorrectList)
+            if(isCorrect)
+                count++;
+
+        return count;
     }
 }

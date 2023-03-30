@@ -26,13 +26,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private TextView questionLbl;
     private Button[] answerButtons;
 
+    private ImageButton homeImgBtn;
     private ImageView progressImg;
     private Canvas pbCanvas;
     private Bitmap progressBitmap;
     private ImageButton recordImgBtn;
 
     private GameViewModel gameVM;
-    private Fragment loadGameActivity;
+    private Fragment loadGameFragment;
 
     public static final int QUESTIONS_COUNT_INDEX = 0;
     public static final int DIFFICULTY_LEVEL_INDEX = 1;
@@ -51,11 +52,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         answerButtons[2] = findViewById(R.id.answer2Btn);
         answerButtons[3] = findViewById(R.id.answer3Btn);
 
+        homeImgBtn = findViewById(R.id.homeBtn);
         recordImgBtn = findViewById(R.id.recordImgBtn);
         progressImg = findViewById(R.id.progressImg);
 
         gameVM = new ViewModelProvider(this).get(GameViewModel.class);
 
+        homeImgBtn.setOnClickListener(this);
         for (Button answer : answerButtons)
             answer.setOnClickListener(this);
         recordImgBtn.setOnClickListener(this);
@@ -84,14 +87,22 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private void showLoadingFragment() {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        loadGameActivity = new LoadGameFragment();
-        fragmentTransaction.replace(R.id.gameLayout, loadGameActivity);
+        loadGameFragment = new LoadGameFragment();
+        fragmentTransaction.replace(R.id.gameLayout, loadGameFragment);
         fragmentTransaction.commit();
     }
 
     public void hideLoadingFragment() {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.hide(loadGameActivity);
+        fragmentTransaction.hide(loadGameFragment);
+        fragmentTransaction.commit();
+    }
+
+    private void showEndGameFragment() {
+        homeImgBtn.setEnabled(false);
+
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.gameLayout, new EndGameFragment());
         fragmentTransaction.commit();
     }
 
@@ -146,7 +157,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         recordImgBtn.setEnabled(true);
     }
 
-    private void chooseAnswer(int answerIndex, Button answerButton) {
+    private void sendAnswer(int answerIndex, Button answerButton) {
         boolean isCorrect = gameVM.getCurrentQuestion().correctAnswer == answerIndex;
 
         ArrayList<Boolean> isCorrectList = gameVM.getIsCorrectList();
@@ -168,14 +179,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             answerBtn.setEnabled(false);
         recordImgBtn.setEnabled(false);
 
-        Intent intent = new Intent(this, EndGameActivity.class);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (gameVM.getCurrentQuestionIndex() == gameVM.getQuestions().size()) {
-                    //TODO: pass results to next screen
-                    startActivity(intent);
-                    finish();
+                    showEndGameFragment();
+
                 } else {
                     showCurrentQuestion();
                 }
@@ -224,7 +233,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         for(int i = 0; i< answerButtons.length; i++)
             if(v.getId()== answerButtons[i].getId())
-                chooseAnswer(i, (Button) v);
+                sendAnswer(i, (Button) v);
 
         switch (v.getId()) {
             case R.id.recordImgBtn:

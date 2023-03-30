@@ -94,18 +94,18 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mode = Mode.LOGIN;
         switchToLoginMode();
 
-        /*
+        Intent intent = new Intent(this, GameActivity.class);
+
 
         int extras[] = new int[3];
-        extras[QUESTIONS_COUNT_INDEX] = 4;
+        extras[QUESTIONS_COUNT_INDEX] = 1;
         extras[DIFFICULTY_LEVEL_INDEX] = 0;
         extras[CATEGORY_INDEX] = 3;
         intent.putExtra("extras", extras);
         startActivity(intent);
         finish();
-        */
 
-        Intent intent = new Intent(this, MainMenuActivity.class);
+
         startActivity(intent);
         finish();
     }

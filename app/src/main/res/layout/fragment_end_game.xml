@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".EndGameFragment"
+    android:background="@drawable/bg_cloud"
+    android:paddingBottom="60dp"
+    >
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-10dp"
+        android:text="99999"
+        android:textColor="#FF007777"
+        android:textSize="64dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="180dp"
+        android:text="Your score:"
+        android:textColor="#FF00BBBB"
+
+        android:textSize="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="55dp"
+        android:text="Not bad at all..."
+        android:textColor="#008D60"
+        android:textSize="28dp"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="70dp"
+        android:layout_marginTop="35dp"
+        android:layout_marginBottom="163dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView4">
+
+
+        <ImageButton
+            android:id="@+id/endGameReplayBtn"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:background="#00000000"
+            android:padding="0dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_end_game_play_again" />
+
+        <ImageButton
+            android:id="@+id/endGameHomeBtn"
+            android:layout_width="0dp"
+            android:layout_height="110dp"
+            android:layout_weight="1"
+            android:background="#00000000"
+            android:padding="0dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_end_game_home" />
+
+        <ImageButton
+            android:id="@+id/endGameShareBtn"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:background="#00000000"
+            android:padding="0dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_end_game_share" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

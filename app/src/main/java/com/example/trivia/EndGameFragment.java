@@ -6,6 +6,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link EndGameFragment#newInstance} factory method to
@@ -13,7 +16,6 @@ import android.view.ViewGroup;
  *
  */
 public class EndGameFragment extends Fragment {
-
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -40,6 +42,7 @@ public class EndGameFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+
 
     public EndGameFragment() {
         // Required empty public constructor

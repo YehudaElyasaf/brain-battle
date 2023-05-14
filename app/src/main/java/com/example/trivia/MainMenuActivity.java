@@ -4,14 +4,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.widget.AdapterView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
@@ -22,7 +20,8 @@ public class MainMenuActivity extends AppCompatActivity
 
     private GestureDetectorCompat swipeDetector;
     private BottomNavigationView navigationView;
-    private StartGameFragment startGameFragment;
+    private NewGameFragment newGameFragment;
+    private JoinGameFragment joinGameFragment;
     private ScoreFragment scoreFragment;
     private SettingsFragment settingFragment;
 
@@ -32,20 +31,25 @@ public class MainMenuActivity extends AppCompatActivity
         setContentView(R.layout.activity_main_menu);
 
         navigationView = findViewById(R.id.mainNavigationView);
-        startGameFragment = new StartGameFragment();
+        newGameFragment = new NewGameFragment();
+        joinGameFragment = new JoinGameFragment();
         scoreFragment = new ScoreFragment();
         settingFragment = new SettingsFragment();
         swipeDetector = new GestureDetectorCompat(this, this);
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, startGameFragment).commit();
-        navigationView.setSelectedItemId(R.id.startGameFragment);
+        getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, newGameFragment).commit();
+        navigationView.setSelectedItemId(R.id.newGameFragment);
 
         navigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()){
-                    case R.id.startGameFragment:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, startGameFragment).commit();
+                    case R.id.newGameFragment:
+                        getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, newGameFragment).commit();
+                        return true;
+
+                    case R.id.joinGameFragment:
+                        getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, joinGameFragment).commit();
                         return true;
 
                     case R.id.scoreFragment:
@@ -95,22 +99,30 @@ public class MainMenuActivity extends AppCompatActivity
             //swipe
             if(e2.getX() > e1.getX()){
                 //right swipe
-                if(currentFragment instanceof StartGameFragment){
+                if(currentFragment instanceof JoinGameFragment){
+                    fragmentTransaction.replace(R.id.mainFragmentContainer, newGameFragment).commit();
+                    navigationView.setSelectedItemId(R.id.newGameFragment);
+                }
+                else if(currentFragment instanceof NewGameFragment){
                     fragmentTransaction.replace(R.id.mainFragmentContainer, scoreFragment).commit();
                     navigationView.setSelectedItemId(R.id.scoreFragment);
                 }
                 else if(currentFragment instanceof SettingsFragment){
-                    fragmentTransaction.replace(R.id.mainFragmentContainer, startGameFragment).commit();
-                    navigationView.setSelectedItemId(R.id.startGameFragment);
+                    fragmentTransaction.replace(R.id.mainFragmentContainer, joinGameFragment).commit();
+                    navigationView.setSelectedItemId(R.id.joinGameFragment);
                 }
             }
             else{
                 //left swipe
                 if(currentFragment instanceof ScoreFragment){
-                    fragmentTransaction.replace(R.id.mainFragmentContainer, startGameFragment).commit();
-                    navigationView.setSelectedItemId(R.id.startGameFragment);
+                    fragmentTransaction.replace(R.id.mainFragmentContainer, newGameFragment).commit();
+                    navigationView.setSelectedItemId(R.id.newGameFragment);
                 }
-                else if(currentFragment instanceof StartGameFragment){
+                else if(currentFragment instanceof NewGameFragment){
+                    fragmentTransaction.replace(R.id.mainFragmentContainer, joinGameFragment).commit();
+                    navigationView.setSelectedItemId(R.id.joinGameFragment);
+                }
+                else if(currentFragment instanceof JoinGameFragment){
                     fragmentTransaction.replace(R.id.mainFragmentContainer, settingFragment).commit();
                     navigationView.setSelectedItemId(R.id.settingsFragment);
                 }

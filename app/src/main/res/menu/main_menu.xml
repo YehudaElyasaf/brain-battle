@@ -6,9 +6,13 @@
         android:icon="@android:drawable/btn_star_big_off"
         android:title="Score" />
     <item
-        android:id="@+id/startGameFragment"
+        android:id="@+id/newGameFragment"
         android:icon="@drawable/ic_play"
-        android:title="Play" />
+        android:title="New Game" />
+    <item
+        android:id="@+id/joinGameFragment"
+        android:icon="?android:attr/actionModeWebSearchDrawable"
+        android:title="Join Game" />
     <item
         android:id="@+id/settingsFragment"
         android:icon="@drawable/ic_settings"

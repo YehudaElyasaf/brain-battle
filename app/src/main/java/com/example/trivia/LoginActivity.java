@@ -1,20 +1,20 @@
 package com.example.trivia;
 
-import static com.example.trivia.GameActivity.CATEGORY_INDEX;
-import static com.example.trivia.GameActivity.DIFFICULTY_LEVEL_INDEX;
-import static com.example.trivia.GameActivity.QUESTIONS_COUNT_INDEX;
-
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 
 enum Mode {
     LOGIN,
@@ -22,15 +22,20 @@ enum Mode {
 }
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
-    Button loginButton;
-    TextView toggleLoginModeLbl;
-    TextView toggleLoginModeLink;
-    EditText usernameTxt;
-    EditText passwordTxt;
-    EditText passwordAgainTxt;
-    CheckBox rememberMeCb;
+    private static final int MIN_PASSWORD_LENGTH = 6;
+
+    private Button loginButton;
+    private TextView toggleLoginModeLbl;
+    private TextView toggleLoginModeLink;
+    private EditText usernameTxt;
+
+    private EditText passwordTxt;
+    private EditText passwordAgainTxt;
+    private CheckBox rememberMeCb;
+    private TextView loginStatusLbl;
 
     private Mode mode;
+    private FirebaseAuth firebaseAuth;
 
     private void switchToLoginMode() {
         loginButton.setText("Log In");
@@ -48,22 +53,80 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mode = Mode.SIGNUP;
     }
 
-    private void login() {
+    private void login(String username, String password) {
+        if(!validateUsernameAnsPassword(username, password))
+            return;
 
+        firebaseAuth.signInWithEmailAndPassword(username, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if(task.isSuccessful())
+                    startMainMenuActivity();
+                else
+                    loginStatusLbl.setText(task.getException().getMessage());
+            }
+        });
     }
 
-    private void signup() {
+    private void signup(String username, String password, String passwordAgain) {
+        //TODO: sign in with user instead of mail
+        if(!password.equals(passwordAgain)){
+            loginStatusLbl.setText("Passwords doesn't match");
+            passwordTxt.setText("");
+            passwordAgainTxt.setText("");
+            setWrongColors(passwordTxt);
+            setWrongColors(passwordAgainTxt);
 
+            validateUsernameAnsPassword(username, password);
+            return;
+        }
+
+        if(!validateUsernameAnsPassword(username, password))
+            return;
+
+        firebaseAuth.createUserWithEmailAndPassword(username, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if(task.isSuccessful())
+                    startMainMenuActivity();
+                else
+                    loginStatusLbl.setText(task.getException().getMessage());
+            }
+        });
+    }
+
+    private boolean validateUsernameAnsPassword(String username, String password) {
+        boolean retValue = true;
+
+        if(username.length() == 0){
+            loginStatusLbl.setText(loginStatusLbl.getText() + "\nPlease enter username");
+            setWrongColors(usernameTxt);
+            retValue = false;
+        }
+        if(password.length() < MIN_PASSWORD_LENGTH){
+            loginStatusLbl.setText(loginStatusLbl.getText() + "\nPassword must be at least 6 characters");
+            setWrongColors(passwordTxt);
+            setWrongColors(passwordAgainTxt);
+            retValue = false;
+        }
+
+        return retValue;
     }
 
     @Override
     public void onClick(View v) {
+        //reset "wrong" colors
+        resetColors(usernameTxt);
+        resetColors(passwordTxt);
+        resetColors(passwordAgainTxt);
+        loginStatusLbl.setText("");
+
         switch (v.getId()) {
             case R.id.loginBtn:
                 if (mode == Mode.LOGIN)
-                    login();
+                    login(usernameTxt.getText().toString(), passwordTxt.getText().toString());
                 else if (mode == Mode.SIGNUP)
-                    signup();
+                    signup(usernameTxt.getText().toString(), passwordTxt.getText().toString(), passwordAgainTxt.getText().toString());
                 break;
 
             case R.id.toggleLoginModeLink:
@@ -75,10 +138,25 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
+    private void setWrongColors(EditText editText) {
+        editText.setHintTextColor(MyColor.WRONG_HINT_COLOR);
+        editText.setBackgroundColor(MyColor.RED_100);
+    }
+    private void resetColors(EditText editText) {
+        editText.setHintTextColor(MyColor.DEFAULT_HINT_COLOR);
+        editText.setBackgroundColor(0); //transparent
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        firebaseAuth = FirebaseAuth.getInstance();
+        if(firebaseAuth.getCurrentUser() != null)
+            //TODO: connect automatically
+            //FirebaseAuth.getInstance().signOut();
+            startMainMenuActivity();
 
         loginButton = findViewById(R.id.loginBtn);
         toggleLoginModeLbl = findViewById(R.id.toggleLoginModeLbl);
@@ -87,23 +165,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         passwordTxt = findViewById(R.id.loginPasswordTxt);
         passwordAgainTxt = findViewById(R.id.loginPasswordAgainTxt);
         rememberMeCb = findViewById(R.id.loginRememberMeCb);
+        loginStatusLbl = findViewById(R.id.loginStatusLbl);
 
         toggleLoginModeLink.setOnClickListener(this);
         loginButton.setOnClickListener(this);
 
         mode = Mode.LOGIN;
         switchToLoginMode();
+    }
 
+    private void startMainMenuActivity() {
         Intent intent = new Intent(this, MainMenuActivity.class);
-
-        /*
-        int extras[] = new int[3];
-        extras[QUESTIONS_COUNT_INDEX] = 1;
-        extras[DIFFICULTY_LEVEL_INDEX] = 0;
-        extras[CATEGORY_INDEX] = 3;
-        intent.putExtra("extras", extras);
-        */
-
         startActivity(intent);
         finish();
     }

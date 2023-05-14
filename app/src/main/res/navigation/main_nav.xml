@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_nav"
-    app:startDestination="@id/startGameFragment">
+    app:startDestination="@id/newGameFragment">
 
     <fragment
-        android:id="@+id/startGameFragment"
-        android:name="com.example.trivia.StartGameFragment"
+        android:id="@+id/newGameFragment"
+        android:name="com.example.trivia.NewGameFragment"
         android:label="fragment_start_game"
-        tools:layout="@layout/fragment_start_game" />
+        tools:layout="@layout/fragment_new_game" />
     <fragment
         android:id="@+id/scoreFragment"
         android:name="com.example.trivia.ScoreFragment"
@@ -20,4 +20,9 @@
         android:name="com.example.trivia.SettingsFragment"
         android:label="fragment_settings"
         tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/joinGameFragment"
+        android:name="com.example.trivia.JoinGameFragment"
+        android:label="fragment_join_game"
+        tools:layout="@layout/fragment_join_game" />
 </navigation>

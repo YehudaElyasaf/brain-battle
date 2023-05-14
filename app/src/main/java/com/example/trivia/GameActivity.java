@@ -1,5 +1,6 @@
 package com.example.trivia;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -19,9 +20,25 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
+import java.util.Random;
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener {
+    public static final String GAMES_COLLECTION_PATH = "games";
+
+    public static final String NEW_GAME_EXTRAS = "extras";
+    public static final String IS_NEW_GAME_EXTRA = "isNewGame";
+    public static final String GAME_ID_EXTRA = "gameId";
+
+    public static final int QUESTIONS_COUNT_INDEX = 0;
+    public static final int DIFFICULTY_LEVEL_INDEX = 1;
+    public static final int CATEGORY_INDEX = 2;
+
     private TextView currentQuestionLbl;
     private TextView questionLbl;
     private Button[] answerButtons;
@@ -34,10 +51,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private GameViewModel gameVM;
     private Fragment loadGameFragment;
-
-    public static final int QUESTIONS_COUNT_INDEX = 0;
-    public static final int DIFFICULTY_LEVEL_INDEX = 1;
-    public static final int CATEGORY_INDEX = 2;
+    private FirebaseFirestore firestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,21 +71,31 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         progressImg = findViewById(R.id.progressImg);
 
         gameVM = new ViewModelProvider(this).get(GameViewModel.class);
+        firestore = FirebaseFirestore.getInstance();
 
         homeImgBtn.setOnClickListener(this);
         for (Button answer : answerButtons)
             answer.setOnClickListener(this);
         recordImgBtn.setOnClickListener(this);
 
-        int[] extras = getIntent().getIntArrayExtra("extras");
-        int questionsCount = extras[QUESTIONS_COUNT_INDEX];
-        DifficultyLevel difficultyLevel = DifficultyLevel.values()[extras[DIFFICULTY_LEVEL_INDEX]];
-        Category category = Category.values()[extras[CATEGORY_INDEX]];
-
         if (gameVM.getQuestions() == null) {
             //screen not initialized
-            GetQuestionsAsync getQuestionsAsync = new GetQuestionsAsync();
-            getQuestionsAsync.execute(questionsCount, difficultyLevel.ordinal(), category.ordinal());
+            if(getIntent().getBooleanExtra(IS_NEW_GAME_EXTRA, false)){
+                //create new game
+                int[] extras = getIntent().getIntArrayExtra(NEW_GAME_EXTRAS);
+                int questionsCount = extras[QUESTIONS_COUNT_INDEX];
+                DifficultyLevel difficultyLevel = DifficultyLevel.values()[extras[DIFFICULTY_LEVEL_INDEX]];
+                Category category = Category.values()[extras[CATEGORY_INDEX]];
+
+                GetQuestionsAsync getQuestionsAsync = new GetQuestionsAsync();
+                getQuestionsAsync.execute(questionsCount, difficultyLevel.ordinal(), category.ordinal());
+            }
+            else{
+                //join existing game
+                int id = getIntent().getIntExtra(GAME_ID_EXTRA, -1);
+                 JoinGameAsync joinGameAsync = new JoinGameAsync();
+                 joinGameAsync.execute(id);
+            }
         } else {
             //screen already initialized
             showCurrentQuestion();
@@ -113,6 +137,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         @Override
+        //params: question count, difficulty level, category
         protected ArrayList<Question> doInBackground(Integer... integers) {
             IQuestionFetcher questionFetcher = new HttpQuestionFetcher();
             return questionFetcher.getQuestions(integers[QUESTIONS_COUNT_INDEX], integers[DIFFICULTY_LEVEL_INDEX], integers[CATEGORY_INDEX]);
@@ -124,11 +149,75 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 Toast.makeText(getBaseContext(), "Couldn't fetch questions!", Toast.LENGTH_SHORT).show();
                 backToMainMenu();
             } else {
-                hideLoadingFragment();
                 gameVM.setQuestions(questions);
-                showCurrentQuestion();
+
+                startGame();
             }
         }
+    }
+
+
+    private class JoinGameAsync extends AsyncTask<Integer, Integer, Void>{
+        //TODO: move asyncTasks to their fragment in Create/JoinGame ???
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showLoadingFragment();
+        }
+
+        @Override
+        //params: id
+        protected Void doInBackground(Integer... integers) {
+            int id = integers[0];
+            String strId = Integer.toString(id);
+            firestore.collection(GAMES_COLLECTION_PATH).document(strId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if(documentSnapshot.exists()){
+                        Game game = documentSnapshot.toObject(Game.class);
+                        gameVM.setGame(game);
+                        hideLoadingFragment();
+                        showCurrentQuestion();
+                    }
+                    else{
+                        Toast.makeText(GameActivity.this, "Wrong game ID!", Toast.LENGTH_SHORT);
+                        backToMainMenu();
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(GameActivity.this, "Connection error!", Toast.LENGTH_SHORT);
+                    backToMainMenu();
+                }
+            });
+
+            return null;
+        }
+    }
+
+    private void startGame() {
+        //100,000-999,999
+        int minId = (int)Math.pow(10, JoinGameFragment.GAME_ID_LENGTH - 1);
+        int maxId = (int)Math.pow(10, JoinGameFragment.GAME_ID_LENGTH);
+        int gameId = minId + (new Random().nextInt(maxId - minId));
+
+        //add game to DB, and wait for an enemy
+        //TODO: validate ID not duplicated
+        //TODO: change loading label
+
+        firestore.collection(GAMES_COLLECTION_PATH).document(Integer.toString(gameId)).set(
+                gameVM.getGame()
+        ).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getBaseContext(), "Failed to create game!", Toast.LENGTH_SHORT).show();
+                backToMainMenu();
+            }
+        });
+
+        hideLoadingFragment();
+        showCurrentQuestion();
     }
 
     private void backToMainMenu() {

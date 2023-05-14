@@ -5,49 +5,52 @@ import androidx.lifecycle.ViewModel;
 import java.util.ArrayList;
 
 public class GameViewModel extends ViewModel {
-    private ArrayList<Question> questions;
-    private ArrayList<Boolean> isCorrectList; //each cell represents the question in the same index
-    private int currentQuestionIndex;
+    private Game game;
 
     public GameViewModel() {
-        questions = null;
-        isCorrectList = null;
-        currentQuestionIndex = 0;
+        game = new Game();
+    }
+
+    public Game getGame() {
+        return game;
+    }
+    public void setGame(Game game) {
+        this.game = game;
     }
 
     public ArrayList<Boolean> getIsCorrectList() {
-        return isCorrectList;
+        return game.getIsCorrectList();
     }
 
     public void setIsCorrectList(ArrayList<Boolean> isCorrectList) {
-        this.isCorrectList = isCorrectList;
+        game.setIsCorrectList(isCorrectList);
     }
 
     public int getCurrentQuestionIndex() {
-        return currentQuestionIndex;
+        return game.getCurrentQuestionIndex();
     }
 
     public void setCurrentQuestionIndex(int currentQuestionIndex) {
-        this.currentQuestionIndex = currentQuestionIndex;
+        game.setCurrentQuestionIndex(currentQuestionIndex);
     }
 
 
     public void setQuestions(ArrayList<Question> questions) {
-        this.questions = questions;
-        currentQuestionIndex = 0;
+        game.setQuestions(questions);
+        game.setCurrentQuestionIndex(0);
     }
 
     public ArrayList<Question> getQuestions() {
-        return questions;
+        return game.getQuestions();
     }
 
     public Question getCurrentQuestion() {
-        return questions.get(currentQuestionIndex);
+        return game.getQuestions().get(game.getCurrentQuestionIndex());
     }
 
     public int getTotalCorrect(){
         int count = 0;
-        for(boolean isCorrect : isCorrectList)
+        for(boolean isCorrect : game.getIsCorrectList())
             if(isCorrect)
                 count++;
 

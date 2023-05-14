@@ -5,15 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".LoginActivity"
-    android:orientation="vertical"
-    android:gravity="center">
+    android:orientation="vertical">
 
     <LinearLayout
+        android:gravity="bottom"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="5"
         android:layout_marginHorizontal="60sp"
-        android:orientation="vertical"
-        android:gravity="left">
+        android:orientation="vertical">
 
         <EditText
             android:id="@+id/loginUsernameTxt"
@@ -53,18 +53,37 @@
             android:checked="false"/>
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:gravity="bottom|center"
+        android:orientation="vertical"
+        android:paddingBottom="20dp">
+
+        <TextView
+            android:id="@+id/loginStatusLbl"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="@color/red"
+            android:textSize="16sp"
+            android:layout_marginBottom="30dp"
+            android:textAlignment="center"/>
+
         <TextView
             android:id="@+id/toggleLoginModeLbl"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="want to toggle mode?"
-            android:textSize="18sp"
-            android:layout_marginTop="40dp"/>
+            android:textSize="20sp"/>
         <TextView
             android:id="@+id/toggleLoginModeLink"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="CLICK HERE!"
             android:textStyle="bold"
-            android:textSize="16sp"/>
+            android:textSize="18sp"/>
+    </LinearLayout>
+
 </LinearLayout>

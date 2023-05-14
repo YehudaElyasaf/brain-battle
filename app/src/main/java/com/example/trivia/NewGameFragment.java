@@ -12,16 +12,30 @@ import static com.example.trivia.GameActivity.*;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.api.core.ApiFuture;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.core.FirestoreClient;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 enum DifficultyLevel{
@@ -36,7 +50,7 @@ enum Category{
     COMPUTER_SCIENCE
 }
 
-public class StartGameFragment extends Fragment
+public class NewGameFragment extends Fragment
         implements View.OnClickListener {
     private static final float UNSELECTED_BUTTON_ALPHA = (float) 0.4;
     private static final int MIN_QUESTION_COUNT = 2;
@@ -52,7 +66,7 @@ public class StartGameFragment extends Fragment
     private int questionCount;
     private Button playBtn;
 
-    public StartGameFragment() {
+    public NewGameFragment() {
         // Required empty public constructor
     }
 
@@ -61,12 +75,13 @@ public class StartGameFragment extends Fragment
      * this fragment using the provided parameters.
      *
      * @param param1 Parameter 1.
+
+    private static final String
      * @param param2 Parameter 2.
      * @return A new instance of fragment StartGameFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static StartGameFragment newInstance(String param1, String param2) {
-        StartGameFragment fragment = new StartGameFragment();
+    public static NewGameFragment newInstance(String param1, String param2) {
+        NewGameFragment fragment = new NewGameFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -183,7 +198,7 @@ public class StartGameFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_start_game, container, false);
+        View view = inflater.inflate(R.layout.fragment_new_game, container, false);
         initViews(view);
 
         return view;
@@ -228,7 +243,9 @@ public class StartGameFragment extends Fragment
                 extras[QUESTIONS_COUNT_INDEX] = questionCount;
                 extras[DIFFICULTY_LEVEL_INDEX] = difficultyLevel.ordinal();
                 extras[CATEGORY_INDEX] = category.ordinal();
-                intent.putExtra("extras", extras);
+                intent.putExtra(GameActivity.NEW_GAME_EXTRAS, extras);
+
+                intent.putExtra(IS_NEW_GAME_EXTRA, true);
 
                 startActivity(intent);
                 requireActivity().finish();

@@ -20,8 +20,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -30,6 +33,7 @@ import java.util.Random;
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String GAMES_COLLECTION_PATH = "games";
+    public static final String USERS_COLLECTION_PATH = "users";
 
     public static final String NEW_GAME_EXTRAS = "extras";
     public static final String IS_NEW_GAME_EXTRA = "isNewGame";
@@ -52,6 +56,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private GameViewModel gameVM;
     private Fragment loadGameFragment;
     private FirebaseFirestore firestore;
+    private boolean isPlayer1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,30 +77,51 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         gameVM = new ViewModelProvider(this).get(GameViewModel.class);
         firestore = FirebaseFirestore.getInstance();
+        isPlayer1 = getIntent().getBooleanExtra(IS_NEW_GAME_EXTRA, false);
 
         homeImgBtn.setOnClickListener(this);
         for (Button answer : answerButtons)
             answer.setOnClickListener(this);
         recordImgBtn.setOnClickListener(this);
 
-        if (gameVM.getQuestions() == null) {
-            //screen not initialized
-            if(getIntent().getBooleanExtra(IS_NEW_GAME_EXTRA, false)){
-                //create new game
-                int[] extras = getIntent().getIntArrayExtra(NEW_GAME_EXTRAS);
-                int questionsCount = extras[QUESTIONS_COUNT_INDEX];
-                DifficultyLevel difficultyLevel = DifficultyLevel.values()[extras[DIFFICULTY_LEVEL_INDEX]];
-                Category category = Category.values()[extras[CATEGORY_INDEX]];
+        if (gameVM.getUser() == null) {
+            //init screen
+            //get user data
+            String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+            firestore.collection(USERS_COLLECTION_PATH).document(email).get().addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(GameActivity.this, "Connection error!", Toast.LENGTH_SHORT);
+                    backToMainMenu();
+                }
+            }).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    //add user to viewModel
+                    User user = documentSnapshot.toObject(User.class);
+                    gameVM.setUser(user);
 
-                GetQuestionsAsync getQuestionsAsync = new GetQuestionsAsync();
-                getQuestionsAsync.execute(questionsCount, difficultyLevel.ordinal(), category.ordinal());
-            }
-            else{
-                //join existing game
-                int id = getIntent().getIntExtra(GAME_ID_EXTRA, -1);
-                 JoinGameAsync joinGameAsync = new JoinGameAsync();
-                 joinGameAsync.execute(id);
-            }
+                    //create/join game
+                    //screen not initialized
+                    if(isPlayer1){
+                        //create new game
+                        int[] extras = getIntent().getIntArrayExtra(NEW_GAME_EXTRAS);
+                        int questionsCount = extras[QUESTIONS_COUNT_INDEX];
+                        DifficultyLevel difficultyLevel = DifficultyLevel.values()[extras[DIFFICULTY_LEVEL_INDEX]];
+                        Category category = Category.values()[extras[CATEGORY_INDEX]];
+
+                        GetQuestionsAsync getQuestionsAsync = new GetQuestionsAsync();
+                        getQuestionsAsync.execute(questionsCount, difficultyLevel.ordinal(), category.ordinal());
+                    }
+                    else{
+                        //join existing game
+                        int id = getIntent().getIntExtra(GAME_ID_EXTRA, -1);
+                        JoinGameAsync joinGameAsync = new JoinGameAsync();
+                        joinGameAsync.execute(id);
+                    }
+                }
+        });
+
         } else {
             //screen already initialized
             showCurrentQuestion();
@@ -150,6 +176,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 backToMainMenu();
             } else {
                 gameVM.setQuestions(questions);
+                Player player1 = new Player(gameVM.getUser());
+                gameVM.getGame().setPlayer1(player1);
 
                 startGame();
             }
@@ -175,6 +203,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     if(documentSnapshot.exists()){
                         Game game = documentSnapshot.toObject(Game.class);
+
+                        Player player2 = new Player(gameVM.getUser());
+                        game.setPlayer2(player2);
+
                         gameVM.setGame(game);
                         hideLoadingFragment();
                         showCurrentQuestion();
@@ -227,9 +259,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void showCurrentQuestion() {
-        Question question = gameVM.getCurrentQuestion();
+        int currentQuestionIndex = getMyCurrentQuestionIndex();
 
-        currentQuestionLbl.setText((gameVM.getCurrentQuestionIndex() + 1) +
+        Question question = gameVM.getQuestions().get(currentQuestionIndex);
+
+        currentQuestionLbl.setText((currentQuestionIndex + 1) +
                 "/" +
                 gameVM.getQuestions().size());
 
@@ -246,8 +280,22 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         recordImgBtn.setEnabled(true);
     }
 
+    private int getMyCurrentQuestionIndex() {
+        if(isPlayer1)
+            return gameVM.getPlayer1().getCurrentQuestionIndex();
+        else
+            return gameVM.getPlayer2().getCurrentQuestionIndex();
+    }
+
+    private void setMyCurrentQuestionIndex(int index) {
+        if(isPlayer1)
+            gameVM.getPlayer1().setCurrentQuestionIndex(index);
+        else
+            gameVM.getPlayer2().setCurrentQuestionIndex(index);
+    }
+
     private void sendAnswer(int answerIndex, Button answerButton) {
-        boolean isCorrect = gameVM.getCurrentQuestion().correctAnswer == answerIndex;
+        boolean isCorrect = gameVM.getQuestions().get(getMyCurrentQuestionIndex()).correctAnswer == answerIndex;
 
         ArrayList<Boolean> isCorrectList = gameVM.getIsCorrectList();
         isCorrectList.add(isCorrect);
@@ -258,11 +306,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             answerButton.setBackgroundColor(MyColor.WRONG_RED);
 
-            answerButtons[gameVM.getCurrentQuestion().correctAnswer].setBackgroundColor(MyColor.CORRECT_GREEN);
+            answerButtons[gameVM.getQuestions().get(getMyCurrentQuestionIndex()).correctAnswer].setBackgroundColor(MyColor.CORRECT_GREEN);
         }
-        drawIsCorrectOnProgressBar(isCorrect, gameVM.getCurrentQuestionIndex());
+        drawIsCorrectOnProgressBar(isCorrect, getMyCurrentQuestionIndex());
 
-        gameVM.setCurrentQuestionIndex(gameVM.getCurrentQuestionIndex() + 1);
+        setMyCurrentQuestionIndex(getMyCurrentQuestionIndex() + 1);
 
         for (Button answerBtn : answerButtons)
             answerBtn.setEnabled(false);
@@ -271,7 +319,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (gameVM.getCurrentQuestionIndex() == gameVM.getQuestions().size()) {
+                if (getMyCurrentQuestionIndex() == gameVM.getQuestions().size()) {
                     showEndGameFragment();
 
                 } else {
@@ -280,6 +328,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             }
         }, 1000);
     }
+
 
     private void initProgressBarCanvas() {
         //draw question progress bar

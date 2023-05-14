@@ -4,12 +4,13 @@ import java.util.ArrayList;
 public class Game {
         private ArrayList<Question> questions;
         private ArrayList<Boolean> isCorrectList; //each cell represents the question in the same index
-        private int currentQuestionIndex;
+        //player1 is the player who created the game, player2 is the other one.
+        private Player player1, player2;
 
         public Game() {
                 questions = null;
-                isCorrectList = null;
-                currentQuestionIndex = 0;
+                player1 = null;
+                player2 = null;
         }
 
         public ArrayList<Question> getQuestions() {
@@ -28,11 +29,19 @@ public class Game {
                 this.isCorrectList = isCorrectList;
         }
 
-        public int getCurrentQuestionIndex() {
-                return currentQuestionIndex;
+        public Player getPlayer1() {
+                return player1;
         }
 
-        public void setCurrentQuestionIndex(int currentQuestionIndex) {
-                this.currentQuestionIndex = currentQuestionIndex;
+        public void setPlayer1(Player player1) {
+                this.player1 = player1;
+        }
+
+        public Player getPlayer2() {
+                return player2;
+        }
+
+        public void setPlayer2(Player player2) {
+                this.player2 = player2;
         }
 }

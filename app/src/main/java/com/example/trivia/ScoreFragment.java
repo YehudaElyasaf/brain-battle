@@ -40,10 +40,10 @@ public class ScoreFragment extends Fragment {
         scoreRv = v.findViewById(R.id.scoreRv);
 
         ArrayList<User> users = new ArrayList<User>();
-        users.add(new User(100, "yehuda", "100", 100, 0));
-        users.add(new User(100, "arie", "100", 21400, 7500));
-        users.add(new User(100, "elyasaf", "100", 100, 3));
-        users.add(new User(100, "another user", "100", 100, 15));
+        users.add(new User("yehuda", "", 100, 0));
+        users.add(new User("arie", "", 21400, 7500));
+        users.add(new User("elyasaf", "", 100, 3));
+        users.add(new User("another user", "", 100, 15));
 
         users.sort((o1, o2) -> (int)(o2.calculateScore() - o1.calculateScore()));
         ScoreListAdapter scoreListAdapter = new ScoreListAdapter(requireContext(), users);

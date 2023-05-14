@@ -1,26 +1,30 @@
 package com.example.trivia;
 
 public class User {
-    private int id;
-    private String username;
-    private String password;
-    private int totalCorrect;
-    private int totalWrong;
+    protected String username;
+    protected String uid;
+    protected int totalCorrect;
+    protected int totalWrong;
 
-    public User(int id, String username, String password, int totalCorrect, int totalWrong) {
-        this.id = id;
+    public User(String username, String uid, int totalCorrect, int totalWrong) {
         this.username = username;
-        this.password = password;
+        this.uid = uid;
         this.totalCorrect = totalCorrect;
         this.totalWrong = totalWrong;
     }
 
-    public int getId() {
-        return id;
+    public User() {
+        this.username = "";
+        this.uid = "";
+        this.totalCorrect = -1;
+        this.totalWrong = -1;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public User(User user) {
+        this.username = user.username;
+        this.uid = user.uid;
+        this.totalCorrect = user.totalCorrect;
+        this.totalWrong = user.totalWrong;
     }
 
     public String getUsername() {
@@ -31,12 +35,12 @@ public class User {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
+    public String getUid() {
+        return uid;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public int getTotalCorrect() {

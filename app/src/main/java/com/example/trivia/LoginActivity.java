@@ -12,9 +12,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 enum Mode {
     LOGIN,
@@ -56,12 +59,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void login(String username, String password) {
         if(!validateUsernameAnsPassword(username, password))
             return;
-
         firebaseAuth.signInWithEmailAndPassword(username, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                if(task.isSuccessful())
+                if(task.isSuccessful()){
                     startMainMenuActivity();
+                    //TODO: if user isn't listed in "users" list, then create user and add it
+                    //can happen if user was signed in and had an connection error before he was added to list
+                }
                 else
                     loginStatusLbl.setText(task.getException().getMessage());
             }
@@ -84,11 +89,26 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         if(!validateUsernameAnsPassword(username, password))
             return;
 
-        firebaseAuth.createUserWithEmailAndPassword(username, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+        String email = username;
+
+        firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                if(task.isSuccessful())
-                    startMainMenuActivity();
+                if(task.isSuccessful()){
+                    //add user to users list
+                    User user = new User(username, firebaseAuth.getUid(), 0, 0);
+                    FirebaseFirestore.getInstance().
+                            collection(GameActivity.USERS_COLLECTION_PATH).document(email).set(user).
+                            addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful())
+                                        startMainMenuActivity();
+                                    else
+                                        loginStatusLbl.setText(task.getException().getMessage());
+                                }
+                            });
+                }
                 else
                     loginStatusLbl.setText(task.getException().getMessage());
             }

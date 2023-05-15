@@ -71,8 +71,8 @@ public class GameViewModel extends ViewModel {
     }
 
     public int calculatePoints() {
-        //points = (totalCorrect ** 1.5 / (totalWrong + 1)) * 100 with round
+        //points = (totalCorrect * 20 / (totalWrong + 1)) * 20 with round
 
-        return 10 * (int)(10 * (Math.pow(getTotalCorrect(), 1.5)) / (getTotalWrong() + 1));
+        return 20 * (int)(20 * (Math.pow(getTotalCorrect(), 1.2)) / (getTotalWrong() + 1));
     }
 }

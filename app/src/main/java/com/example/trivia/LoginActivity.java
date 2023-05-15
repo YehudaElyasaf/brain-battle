@@ -96,7 +96,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
                     //add user to users list
-                    User user = new User(username, firebaseAuth.getUid(), 0, 0);
+                    User user = new User(username, firebaseAuth.getUid(), 0, 0, 0);
                     FirebaseFirestore.getInstance().
                             collection(GameActivity.USERS_COLLECTION_PATH).document(email).set(user).
                             addOnCompleteListener(new OnCompleteListener<Void>() {

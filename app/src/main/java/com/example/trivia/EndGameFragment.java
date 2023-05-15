@@ -2,9 +2,12 @@ package com.example.trivia;
 
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -19,6 +22,10 @@ public class EndGameFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+
+    private GameViewModel gameVM;
+
+    private TextView scoreEndLbl;
 
     private String mParam1;
     private String mParam2;
@@ -57,7 +64,14 @@ public class EndGameFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_end_game, container, false);
+
+        gameVM = new ViewModelProvider(requireActivity()).get(GameViewModel.class);
+        scoreEndLbl = view.findViewById(R.id.scoreEndLbl);
+
+        scoreEndLbl.setText(Integer.toString(gameVM.calculatePoints()));
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_end_game, container, false);
+        return view;
     }
 }

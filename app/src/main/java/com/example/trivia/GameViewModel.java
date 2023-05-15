@@ -66,4 +66,13 @@ public class GameViewModel extends ViewModel {
 
         return count;
     }
+    public int getTotalWrong(){
+        return game.getQuestions().size() - getTotalCorrect();
+    }
+
+    public int calculatePoints() {
+        //points = (totalCorrect ** 1.5 / (totalWrong + 1)) * 100 with round
+
+        return 10 * (int)(10 * (Math.pow(getTotalCorrect(), 1.5)) / (getTotalWrong() + 1));
+    }
 }

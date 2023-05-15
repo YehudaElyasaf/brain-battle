@@ -91,7 +91,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             firestore.collection(USERS_COLLECTION_PATH).document(email).get().addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(GameActivity.this, "Connection error!", Toast.LENGTH_SHORT);
+                    Toast.makeText(GameActivity.this, "Connection error!", Toast.LENGTH_SHORT).show();
                     backToMainMenu();
                 }
             }).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -156,6 +156,39 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         fragmentTransaction.commit();
     }
 
+    private class EndGameAsync extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showLoadingFragment();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            //update user score
+            gameVM.getUser().setTotalCorrect(gameVM.getUser().getTotalCorrect() + gameVM.getTotalCorrect());
+            gameVM.getUser().setTotalCorrect(gameVM.getUser().getTotalWrong() + gameVM.getTotalWrong());
+            gameVM.getUser().setScore(gameVM.getUser().getScore() + gameVM.calculatePoints());
+
+            //send new user data to users list
+            firestore.collection(USERS_COLLECTION_PATH).document(gameVM.getUser().getEmail())
+                    .set(gameVM.getUser()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if(!task.isSuccessful()){
+                                Toast.makeText(GameActivity.this, "Connection error!", Toast.LENGTH_SHORT).show();
+                                backToMainMenu();
+                            }
+                            else{
+                                showEndGameFragment();
+                            }
+                        }
+                    });
+
+            return null;
+        }
+    }
+
     private class GetQuestionsAsync extends AsyncTask<Integer, Integer, ArrayList<Question>> {
         @Override
         protected void onPreExecute() {
@@ -212,14 +245,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         showCurrentQuestion();
                     }
                     else{
-                        Toast.makeText(GameActivity.this, "Wrong game ID!", Toast.LENGTH_SHORT);
+                        Toast.makeText(GameActivity.this, "Wrong game ID!", Toast.LENGTH_SHORT).show();
                         backToMainMenu();
                     }
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(GameActivity.this, "Connection error!", Toast.LENGTH_SHORT);
+                    Toast.makeText(GameActivity.this, "Connection error!", Toast.LENGTH_SHORT).show();
                     backToMainMenu();
                 }
             });
@@ -320,7 +353,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void run() {
                 if (getMyCurrentQuestionIndex() == gameVM.getQuestions().size()) {
-                    showEndGameFragment();
+                    //game ended
+                    EndGameAsync endGameAsync = new EndGameAsync();
+                    endGameAsync.execute();
 
                 } else {
                     showCurrentQuestion();

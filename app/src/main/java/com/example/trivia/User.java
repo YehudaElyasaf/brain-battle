@@ -3,14 +3,14 @@ package com.example.trivia;
 public class User {
     protected String username;
     protected String uid;
-    protected int points;
+    protected int score;
     protected int totalCorrect;
     protected int totalWrong;
 
-    public User(String username, String uid, int points, int totalCorrect, int totalWrong) {
+    public User(String username, String uid, int score, int totalCorrect, int totalWrong) {
         this.username = username;
         this.uid = uid;
-        this.points = points;
+        this.score = score;
         this.totalCorrect = totalCorrect;
         this.totalWrong = totalWrong;
     }
@@ -18,7 +18,7 @@ public class User {
     public User() {
         this.username = "";
         this.uid = "";
-        this.points = -1;
+        this.score = -1;
         this.totalCorrect = -1;
         this.totalWrong = -1;
     }
@@ -62,7 +62,16 @@ public class User {
         this.totalWrong = totalWrong;
     }
 
-    public double calculateScore(){
-        return Math.pow(totalCorrect, 1.6) / (totalWrong + 10);
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public String getEmail(){
+        //TODO: return username + "@1.1"
+        return username;
     }
 }

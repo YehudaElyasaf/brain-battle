@@ -1,6 +1,5 @@
 package com.example.trivia;
 
-import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -43,7 +42,7 @@ public class ScoreFragment extends Fragment {
         users.add(new User("yehuda", "",0,  100, 0));
         users.add(new User("arie", "", 0,21400, 7500));
 
-        users.sort((o1, o2) -> (int)(o2.calculateScore() - o1.calculateScore()));
+        users.sort((o1, o2) -> (int)(o2.getScore() - o1.getScore()));
         ScoreListAdapter scoreListAdapter = new ScoreListAdapter(requireContext(), users);
         scoreRv.setAdapter(scoreListAdapter);
         scoreRv.setLayoutManager(new LinearLayoutManager(requireContext()));

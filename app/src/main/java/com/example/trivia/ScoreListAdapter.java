@@ -9,7 +9,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.security.PublicKey;
 import java.util.ArrayList;
 
 public class ScoreListAdapter extends RecyclerView.Adapter<ScoreListAdapter.ScoreListViewHolder> {
@@ -35,7 +34,7 @@ public class ScoreListAdapter extends RecyclerView.Adapter<ScoreListAdapter.Scor
 
         holder.place.setText(Integer.toString(position + 1));
         holder.username.setText(user.getUsername());
-        holder.score.setText(Integer.toString((int) user.calculateScore()));
+        holder.score.setText(Integer.toString((int) user.getScore()));
     }
 
     @Override

@@ -5,12 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".EndGameFragment"
-    android:background="@drawable/bg_cloud"
+    android:background="#E9FFFFFF"
     android:paddingBottom="60dp"
     >
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/scoreEndLbl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="-10dp"
@@ -45,7 +45,7 @@
 
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/scoreEndLbl" />
 
     <LinearLayout
         android:id="@+id/linearLayout6"

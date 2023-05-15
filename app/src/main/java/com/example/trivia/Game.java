@@ -3,6 +3,7 @@ package com.example.trivia;
 import java.util.ArrayList;
 public class Game {
         private ArrayList<Question> questions;
+        //TODO: move isCorrectList to player
         private ArrayList<Boolean> isCorrectList; //each cell represents the question in the same index
         //player1 is the player who created the game, player2 is the other one.
         private Player player1, player2;

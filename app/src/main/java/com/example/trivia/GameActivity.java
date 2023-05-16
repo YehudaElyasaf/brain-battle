@@ -283,7 +283,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         showCurrentQuestion();
     }
 
-    private void backToMainMenu() {
+    public void backToMainMenu() {
         Intent intent = new Intent(this, MainMenuActivity.class);
         startActivity(intent);
         finish();

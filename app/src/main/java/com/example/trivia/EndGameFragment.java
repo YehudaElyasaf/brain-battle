@@ -1,5 +1,6 @@
 package com.example.trivia;
 
+import android.content.Intent;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -7,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 /**
@@ -15,7 +17,7 @@ import android.widget.TextView;
  * create an instance of this fragment.
  *
  */
-public class EndGameFragment extends Fragment {
+public class EndGameFragment extends Fragment implements View.OnClickListener {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -24,6 +26,10 @@ public class EndGameFragment extends Fragment {
 
     private TextView yourScoreCountLbl;
     private TextView enemyScoreCountLbl;
+
+    private ImageButton endGameReplayBtn;
+    private ImageButton endGameHomeBtn;
+    private ImageButton endGameShareBtn;
 
     private String mParam1;
     private String mParam2;
@@ -70,7 +76,29 @@ public class EndGameFragment extends Fragment {
 
         yourScoreCountLbl.setText(Integer.toString(gameVM.calculatePoints()));
 
+        endGameReplayBtn = view.findViewById(R.id.endGameReplayBtn);
+        endGameHomeBtn = view.findViewById(R.id.endGameHomeBtn);
+        endGameShareBtn = view.findViewById(R.id.endGameShareBtn);
+        endGameReplayBtn.setOnClickListener(this);
+        endGameHomeBtn.setOnClickListener(this);
+        endGameShareBtn.setOnClickListener(this);
+
         // Inflate the layout for this fragment
         return view;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.endGameReplayBtn:
+                break;
+            case R.id.endGameHomeBtn:
+                Intent intent = new Intent(requireContext(), MainMenuActivity.class);
+                startActivity(intent);
+                requireActivity().finish();
+                break;
+            case R.id.endGameShareBtn:
+                break;
+        }
     }
 }

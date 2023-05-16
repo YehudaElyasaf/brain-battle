@@ -53,7 +53,7 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="20dp"
-            android:text="this is the text of the question. it's lenth isvaious, so make suer it has enogh space..."
+            android:text="this is the text of the question. it's lenth isvaious, so make suer it has enogh space... text text text text text text text"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

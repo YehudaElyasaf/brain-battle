@@ -6,11 +6,11 @@ import java.util.ArrayList;
 
 public class GameViewModel extends ViewModel {
     private Game game;
-    private User user;
+    private boolean isCreator; //is this player the game creator?
 
     public GameViewModel() {
         game = new Game();
-        user = null;
+        isCreator = true;
     }
 
     public Game getGame() {
@@ -20,20 +20,12 @@ public class GameViewModel extends ViewModel {
         this.game = game;
     }
 
-    public User getUser() {
-        return user;
+    public boolean isCreator() {
+        return isCreator;
     }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public ArrayList<Boolean> getIsCorrectList() {
-        return game.getIsCorrectList();
-    }
-
-    public void setIsCorrectList(ArrayList<Boolean> isCorrectList) {
-        game.setIsCorrectList(isCorrectList);
+    public void setCreator(boolean creator) {
+        isCreator = creator;
     }
 
     public void setQuestions(ArrayList<Question> questions) {
@@ -44,7 +36,7 @@ public class GameViewModel extends ViewModel {
         return game.getPlayer1();
     }
     public Player getPlayer2(){
-        return game.getPlayer1();
+        return game.getPlayer2();
     }
 
     public void setPlayer1(Player player1){
@@ -58,21 +50,37 @@ public class GameViewModel extends ViewModel {
         return game.getQuestions();
     }
 
-    public int getTotalCorrect(){
+    public int getMyTotalCorrect(){
         int count = 0;
-        for(boolean isCorrect : game.getIsCorrectList())
+        for(boolean isCorrect : getMyPlayer().getIsCorrectList())
             if(isCorrect)
                 count++;
 
         return count;
     }
-    public int getTotalWrong(){
-        return game.getQuestions().size() - getTotalCorrect();
+    public int getMyTotalWrong(){
+        return game.getQuestions().size() - getMyTotalCorrect();
     }
 
     public int calculatePoints() {
         //points = (totalCorrect * 20 / (totalWrong + 1)) * 20 with round
 
-        return 20 * (int)(20 * (Math.pow(getTotalCorrect(), 1.2)) / (getTotalWrong() + 1));
+        return 20 * (int)(20 * (Math.pow(getMyTotalCorrect(), 1.2)) / (getMyTotalWrong() + 1));
+    }
+
+    public Player getMyPlayer() {
+        if(isCreator)
+            //creator is player1
+            return game.getPlayer1();
+        else
+            return game.getPlayer2();
+    }
+
+    public void setMyPlayer(Player player) {
+        //creator is player1
+        if(isCreator)
+            game.setPlayer1(player);
+        else
+            game.setPlayer2(player);
     }
 }

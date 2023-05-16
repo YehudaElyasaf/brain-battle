@@ -3,13 +3,11 @@ package com.example.trivia;
 import java.util.ArrayList;
 public class Game {
         private ArrayList<Question> questions;
-        //TODO: move isCorrectList to player
-        private ArrayList<Boolean> isCorrectList; //each cell represents the question in the same index
         //player1 is the player who created the game, player2 is the other one.
         private Player player1, player2;
 
         public Game() {
-                questions = null;
+                questions = new ArrayList<>();
                 player1 = null;
                 player2 = null;
         }
@@ -20,14 +18,6 @@ public class Game {
 
         public void setQuestions(ArrayList<Question> questions) {
                 this.questions = questions;
-        }
-
-        public ArrayList<Boolean> getIsCorrectList() {
-                return isCorrectList;
-        }
-
-        public void setIsCorrectList(ArrayList<Boolean> isCorrectList) {
-                this.isCorrectList = isCorrectList;
         }
 
         public Player getPlayer1() {

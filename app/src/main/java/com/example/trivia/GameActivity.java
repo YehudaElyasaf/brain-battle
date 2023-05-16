@@ -167,7 +167,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         protected Void doInBackground(Void... voids) {
             //update user score
             gameVM.getUser().setTotalCorrect(gameVM.getUser().getTotalCorrect() + gameVM.getTotalCorrect());
-            gameVM.getUser().setTotalCorrect(gameVM.getUser().getTotalWrong() + gameVM.getTotalWrong());
+            gameVM.getUser().setTotalWrong(gameVM.getUser().getTotalWrong() + gameVM.getTotalWrong());
             gameVM.getUser().setScore(gameVM.getUser().getScore() + gameVM.calculatePoints());
 
             //send new user data to users list

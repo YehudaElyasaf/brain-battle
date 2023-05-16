@@ -9,9 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.firestore.FirebaseFirestore;
-
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link EndGameFragment#newInstance} factory method to
@@ -25,7 +22,8 @@ public class EndGameFragment extends Fragment {
 
     private GameViewModel gameVM;
 
-    private TextView scoreEndLbl;
+    private TextView yourScoreCountLbl;
+    private TextView enemyScoreCountLbl;
 
     private String mParam1;
     private String mParam2;
@@ -67,9 +65,10 @@ public class EndGameFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_end_game, container, false);
 
         gameVM = new ViewModelProvider(requireActivity()).get(GameViewModel.class);
-        scoreEndLbl = view.findViewById(R.id.scoreEndLbl);
+        yourScoreCountLbl = view.findViewById(R.id.yourScoreCountLbl);
+        enemyScoreCountLbl = view.findViewById(R.id.enemyScoreCountLbl);
 
-        scoreEndLbl.setText(Integer.toString(gameVM.calculatePoints()));
+        yourScoreCountLbl.setText(Integer.toString(gameVM.calculatePoints()));
 
         // Inflate the layout for this fragment
         return view;

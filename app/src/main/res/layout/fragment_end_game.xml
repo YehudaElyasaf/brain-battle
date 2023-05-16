@@ -10,13 +10,13 @@
     >
 
     <TextView
-        android:id="@+id/scoreEndLbl"
+        android:id="@+id/yourScoreCountLbl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="-10dp"
         android:text="99999"
         android:textColor="#FF007777"
-        android:textSize="64dp"
+        android:textSize="84dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView3" />
@@ -25,27 +25,52 @@
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="180dp"
+        android:layout_marginTop="41dp"
         android:text="Your score:"
-        android:textColor="#FF00BBBB"
 
-        android:textSize="20dp"
+        android:textColor="#FF00BBBB"
+        android:textSize="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/winnerLbl" />
+
+    <TextView
+        android:id="@+id/enemyScoreCountLbl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-10dp"
+        android:text="9999"
+        android:textColor="#FF007777"
+        android:textSize="64dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/enemyScoreLbl" />
+
+    <TextView
+        android:id="@+id/enemyScoreLbl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+
+        android:text="Enemy's score:"
+        android:textColor="#FF00BBBB"
+        android:textSize="18dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/yourScoreCountLbl" />
 
     <TextView
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="55dp"
+        android:layout_marginTop="13dp"
         android:text="Not bad at all..."
         android:textColor="#008D60"
-        android:textSize="28dp"
 
+        android:textSize="28dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scoreEndLbl" />
+        app:layout_constraintTop_toBottomOf="@+id/enemyScoreCountLbl" />
 
     <LinearLayout
         android:id="@+id/linearLayout6"
@@ -53,7 +78,6 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="70dp"
         android:layout_marginTop="35dp"
-        android:layout_marginBottom="163dp"
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -92,4 +116,17 @@
             android:scaleType="fitCenter"
             android:src="@drawable/ic_end_game_share" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/winnerLbl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="Username won!"
+        android:textSize="36dp"
+        android:textColor="#FF007777"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

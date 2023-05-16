@@ -3,6 +3,7 @@ package com.example.trivia;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -136,15 +137,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         initProgressBarCanvas();
     }
 
-    private void showLoadingFragment() {
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        loadGameFragment = new LoadGameFragment();
+    public static Fragment showLoadingFragment(FragmentManager fm) {
+        FragmentTransaction fragmentTransaction = fm.beginTransaction();
+        Fragment loadGameFragment = new LoadGameFragment();
         fragmentTransaction.replace(R.id.gameLayout, loadGameFragment);
         fragmentTransaction.commit();
+
+        return loadGameFragment;
     }
 
-    public void hideLoadingFragment() {
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+    public static void hideLoadingFragment(FragmentManager fm, Fragment loadGameFragment) {
+        FragmentTransaction fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.hide(loadGameFragment);
         fragmentTransaction.commit();
     }
@@ -161,7 +164,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            showLoadingFragment();
+            loadGameFragment = showLoadingFragment(getSupportFragmentManager());
         }
 
         @Override
@@ -193,7 +196,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private class GetQuestionsAsync extends AsyncTask<Integer, Integer, ArrayList<Question>> {
         @Override
         protected void onPreExecute() {
-            showLoadingFragment();
+            loadGameFragment = showLoadingFragment(getSupportFragmentManager());
         }
 
         @Override
@@ -222,7 +225,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            showLoadingFragment();
+            loadGameFragment = showLoadingFragment(getSupportFragmentManager());
         }
 
         @Override
@@ -239,7 +242,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
                         gameVM.setGame(game);
                         gameVM.setMyPlayer(myPlayer);
-                        hideLoadingFragment();
+                        hideLoadingFragment(getSupportFragmentManager(), loadGameFragment);
                         showCurrentQuestion();
                     }
                     else{
@@ -279,7 +282,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        hideLoadingFragment();
+        hideLoadingFragment(getSupportFragmentManager(), loadGameFragment);
         showCurrentQuestion();
     }
 

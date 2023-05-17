@@ -139,7 +139,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     public static Fragment showLoadingFragment(FragmentManager fm) {
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
-        Fragment loadingFragment = new LoadingGameFragment();
+        Fragment loadingFragment = new LoadingFragment();
         fragmentTransaction.replace(R.id.gameLayout, loadingFragment);
         fragmentTransaction.commit();
 
@@ -173,10 +173,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             gameVM.getMyPlayer().setTotalCorrect(gameVM.getMyPlayer().getTotalCorrect() + gameVM.getMyTotalCorrect());
             gameVM.getMyPlayer().setTotalWrong(gameVM.getMyPlayer().getTotalWrong() + gameVM.getMyTotalWrong());
             gameVM.getMyPlayer().setScore(gameVM.getMyPlayer().getScore() + gameVM.calculatePoints());
+            User myPlayerAsUser = (User)gameVM.getMyPlayer();
 
             //send new user data to users list
             firestore.collection(USERS_COLLECTION_PATH).document(gameVM.getMyPlayer().getEmail())
-                    .set((User)gameVM.getMyPlayer()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    .set(myPlayerAsUser).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if(!task.isSuccessful()){

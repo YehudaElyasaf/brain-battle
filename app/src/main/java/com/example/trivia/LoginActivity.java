@@ -175,7 +175,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         firebaseAuth = FirebaseAuth.getInstance();
         if(firebaseAuth.getCurrentUser() != null)
             //TODO: connect automatically
-            //FirebaseAuth.getInstance().signOut();
+            56//FirebaseAuth.getInstance().signOut();
             startMainMenuActivity();
 
         loginButton = findViewById(R.id.loginBtn);

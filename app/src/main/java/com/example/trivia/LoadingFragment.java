@@ -10,10 +10,10 @@ import android.view.ViewGroup;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link LoadingGameFragment#newInstance} factory method to
+ * Use the {@link LoadingFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class LoadingGameFragment extends Fragment {
+public class LoadingFragment extends Fragment {
 
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -22,7 +22,7 @@ public class LoadingGameFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public LoadingGameFragment() {
+    public LoadingFragment() {
         // Required empty public constructor
     }
 
@@ -34,8 +34,8 @@ public class LoadingGameFragment extends Fragment {
      * @param param2 Parameter 2.
      * @return A new instance of fragment LoadGameFragment.
      */
-    public static LoadingGameFragment newInstance(String param1, String param2) {
-        LoadingGameFragment fragment = new LoadingGameFragment();
+    public static LoadingFragment newInstance(String param1, String param2) {
+        LoadingFragment fragment = new LoadingFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);

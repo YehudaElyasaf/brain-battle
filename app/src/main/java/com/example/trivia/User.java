@@ -26,6 +26,7 @@ public class User {
     public User(User user) {
         this.username = user.username;
         this.uid = user.uid;
+        this.score = user.score;
         this.totalCorrect = user.totalCorrect;
         this.totalWrong = user.totalWrong;
     }

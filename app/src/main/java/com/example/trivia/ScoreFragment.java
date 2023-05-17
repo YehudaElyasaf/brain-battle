@@ -108,9 +108,16 @@ public class ScoreFragment extends Fragment {
         successPercentagePb.setBackgroundProgressBarColor(MyColor.WRONG_RED);
         successPercentagePb.setBackgroundProgressBarWidth(10);
 
-        int progress = (100 * currentUser.getTotalCorrect()) / (currentUser.getTotalCorrect() + currentUser.getTotalWrong());
+        int totalAnswers = currentUser.getTotalCorrect() + currentUser.getTotalWrong();
+        int progress;
+        if(totalAnswers > 0)
+            progress = (100 * currentUser.getTotalCorrect()) / totalAnswers;
+        else
+            //avoid division by zero
+            progress = 0;
+
         successPercentagePb.setProgressWithAnimation(progress, (long)1000);
-        successPercentageLbl.setText(Integer.toString(progress));
+        successPercentageLbl.setText(Integer.toString(progress) + "%");
 
         //show user list
         users.sort((o1, o2) -> (int)(o2.getScore() - o1.getScore()));

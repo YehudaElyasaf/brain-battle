@@ -139,11 +139,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     public static Fragment showLoadingFragment(FragmentManager fm) {
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
-        Fragment loadGameFragment = new LoadGameFragment();
-        fragmentTransaction.replace(R.id.gameLayout, loadGameFragment);
+        Fragment loadingFragment = new LoadingGameFragment();
+        fragmentTransaction.replace(R.id.gameLayout, loadingFragment);
         fragmentTransaction.commit();
 
-        return loadGameFragment;
+        return loadingFragment;
     }
 
     public static void hideLoadingFragment(FragmentManager fm, Fragment loadGameFragment) {

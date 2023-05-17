@@ -17,7 +17,7 @@
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView30">
+        app:layout_constraintTop_toBottomOf="@+id/totalScoreLbl">
 
         <TextView
             android:id="@+id/textView15"
@@ -49,7 +49,7 @@
         app:layout_constraintTop_toBottomOf="@+id/linearLayout3">
 
         <TextView
-            android:id="@+id/textView17"
+            android:id="@+id/totalCorrectLbl"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -58,7 +58,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Display2" />
 
         <TextView
-            android:id="@+id/textView18"
+            android:id="@+id/totalWrongLbl"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -72,7 +72,6 @@
         android:layout_width="135dp"
         android:layout_height="135dp"
 
-        android:layout_marginTop="-35dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
@@ -81,7 +80,7 @@
     </com.mikhaellopez.circularprogressbar.CircularProgressBar>
 
     <TextView
-        android:id="@+id/textView14"
+        android:id="@+id/successPercentageLbl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="-1%"
@@ -106,7 +105,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.493"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView14"
+        app:layout_constraintTop_toBottomOf="@+id/successPercentageLbl"
         app:layout_constraintVertical_bias="0.0" />
 
     <LinearLayout
@@ -139,7 +138,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:text="Grade"
+            android:text="Score"
             android:textAlignment="center" />
     </LinearLayout>
 
@@ -157,20 +156,22 @@
         android:id="@+id/textView29"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="4dp"
         android:text="Your\nScore\nIs"
+        android:textAlignment="textEnd"
         android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout3"
-        app:layout_constraintEnd_toStartOf="@+id/textView30"
-        app:layout_constraintTop_toTopOf="@+id/textView30"
-        app:layout_constraintVertical_bias="0.47"
-        android:textAlignment="textEnd"/>
+        app:layout_constraintEnd_toStartOf="@+id/totalScoreLbl"
+        app:layout_constraintTop_toTopOf="@+id/totalScoreLbl"
+        app:layout_constraintVertical_bias="0.47" />
 
     <TextView
-        android:id="@+id/textView30"
+        android:id="@+id/totalScoreLbl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="10000"
+        android:textSize="84sp"
         android:textAppearance="@style/TextAppearance.AppCompat.Display4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -181,10 +182,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="3dp"
-        android:layout_marginTop="84dp"
+        android:layout_marginTop="50dp"
         android:text="Pts."
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-        app:layout_constraintStart_toEndOf="@+id/textView30"
+        app:layout_constraintStart_toEndOf="@+id/totalScoreLbl"
         app:layout_constraintTop_toTopOf="parent" />
 
 

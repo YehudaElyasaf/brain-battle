@@ -2,14 +2,24 @@ package com.example.trivia;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
 import java.util.ArrayList;
@@ -21,6 +31,14 @@ import java.util.ArrayList;
  */
 public class ScoreFragment extends Fragment {
     RecyclerView scoreRv;
+    CircularProgressBar successPercentagePb;
+    TextView totalScoreLbl;
+    TextView totalCorrectLbl;
+    TextView totalWrongLbl;
+    TextView successPercentageLbl;
+
+    ArrayList<User> users;
+    User currentUser;
 
     public ScoreFragment() {
         // Required empty public constructor
@@ -37,23 +55,67 @@ public class ScoreFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_score, container, false);
         scoreRv = v.findViewById(R.id.scoreRv);
+        successPercentagePb = v.findViewById(R.id.successPercentagePb);
+        totalScoreLbl = v.findViewById(R.id.totalScoreLbl);
+        totalCorrectLbl = v.findViewById(R.id.totalCorrectLbl);
+        totalWrongLbl = v.findViewById(R.id.totalWrongLbl);
+        successPercentageLbl = v.findViewById(R.id.successPercentageLbl);
 
-        ArrayList<User> users = new ArrayList<User>();
-        users.add(new User("yehuda", "",0,  100, 0));
-        users.add(new User("arie", "", 0,21400, 7500));
+        //Fragment loadingFragment = GameActivity.showLoadingFragment(getChildFragmentManager());
 
-        users.sort((o1, o2) -> (int)(o2.getScore() - o1.getScore()));
-        ScoreListAdapter scoreListAdapter = new ScoreListAdapter(requireContext(), users);
-        scoreRv.setAdapter(scoreListAdapter);
-        scoreRv.setLayoutManager(new LinearLayoutManager(requireContext()));
+        //fetch user list
+        FirebaseFirestore.getInstance().
+                collection(GameActivity.USERS_COLLECTION_PATH).get().addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(requireContext(), "Connection error!", Toast.LENGTH_SHORT).show();
+                        //back to main manu
+                        FragmentTransaction ft = getChildFragmentManager().beginTransaction();
+                        ft.replace(R.id.mainFragmentContainer, new NewGameFragment()).commit();
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        ArrayList<User> fetchedUserList = new ArrayList<>();
+                        for(DocumentSnapshot documentSnapshot : queryDocumentSnapshots.getDocuments())
+                            if(documentSnapshot.exists())
+                                fetchedUserList.add(documentSnapshot.toObject(User.class));
 
-        CircularProgressBar successPercentagePb = v.findViewById(R.id.successPercentagePb);
-        successPercentagePb.setProgressWithAnimation(60, (long)1000);
+                        users = fetchedUserList;
+                        //find current user
+                        for(User user : users)
+                            if(user.getUid().equals(FirebaseAuth.getInstance().getUid()))
+                                currentUser = user;
+                        if(currentUser == null)
+                            Toast.makeText(requireContext(), "Current user not found!", Toast.LENGTH_SHORT).show();
+
+                        showScore();
+                        //GameActivity.hideLoadingFragment(getActivity().getSupportFragmentManager(), loadingFragment);
+                    }
+                });
+
+        return v;
+    }
+
+    private void showScore() {
+        totalScoreLbl.setText(Integer.toString(currentUser.getScore()));
+        totalCorrectLbl.setText(Integer.toString(currentUser.getTotalCorrect()));
+        totalWrongLbl.setText(Integer.toString(currentUser.getTotalWrong()));
+
+        //show correct percentage progress bar
         successPercentagePb.setProgressBarColor(MyColor.CORRECT_GREEN);
         successPercentagePb.setProgressBarWidth(15);
         successPercentagePb.setBackgroundProgressBarColor(MyColor.WRONG_RED);
         successPercentagePb.setBackgroundProgressBarWidth(10);
 
-        return v;
+        int progress = (100 * currentUser.getTotalCorrect()) / (currentUser.getTotalCorrect() + currentUser.getTotalWrong());
+        successPercentagePb.setProgressWithAnimation(progress, (long)1000);
+        successPercentageLbl.setText(Integer.toString(progress));
+
+        //show user list
+        users.sort((o1, o2) -> (int)(o2.getScore() - o1.getScore()));
+        ScoreListAdapter scoreListAdapter = new ScoreListAdapter(requireContext(), users);
+        scoreRv.setAdapter(scoreListAdapter);
+        scoreRv.setLayoutManager(new LinearLayoutManager(requireContext()));
     }
 }

@@ -18,6 +18,12 @@ public class Player extends User{
         currentQuestionIndex = 0;
         isCorrectList = new ArrayList<>();
     }
+    public Player(Player player) {
+        super(player);
+        currentQuestionIndex = player.currentQuestionIndex;
+        isCorrectList = player.isCorrectList;
+    }
+
     public Player() {
         super();
         currentQuestionIndex = 0;

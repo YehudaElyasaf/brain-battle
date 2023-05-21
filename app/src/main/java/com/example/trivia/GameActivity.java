@@ -306,7 +306,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     public void onSuccess(Void unused) {
                         hideLoadingFragment(getSupportFragmentManager(), loadGameFragment);
                         showGameIdFragment();
-                        //gameVM.enableGameSyncWithFirestore(this);
+                        gameVM.enableGameSyncWithFirestore(GameActivity.this);
 
                         //wait until a an enemy joins
                         gameVM.getGameLiveData().observe(GameActivity.this, new Observer<Game>() {

@@ -121,16 +121,18 @@ public class GameViewModel extends ViewModel {
 
                             if(newGame.getPlayer2() != null){
                                 //if player2 is null, game hasn't yet started
-                                game.setValue(newGame);
-                                return;
+                                Game gameValue = getGame();
+                                if(isCreator && !newGame.getPlayer2().equals(gameValue.getPlayer2())){
+                                    //player 2 has changed
+                                    gameValue.setPlayer2(newGame.getPlayer2());
+                                    game.setValue(gameValue);
+                                }
+                                if(!isCreator && !newGame.getPlayer1().equals(gameValue.getPlayer1())){
+                                    //player 1 has changed
+                                    gameValue.setPlayer1(newGame.getPlayer1());
+                                    game.setValue(gameValue);
+                                }
                             }
-
-                            Game gameValue = getGame();
-                            if(isCreator)
-                                gameValue.setPlayer2(newGame.getPlayer2());
-                            else
-                                gameValue.setPlayer1(newGame.getPlayer1());
-                            game.setValue(gameValue);
                         }
                     }
                 });
@@ -147,6 +149,7 @@ public class GameViewModel extends ViewModel {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
                                     Toast.makeText(context, "Connection error!", Toast.LENGTH_SHORT).show();
+                                    //TODO: exit screen
                                 }
                             });
 

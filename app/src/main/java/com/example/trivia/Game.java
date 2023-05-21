@@ -5,15 +5,25 @@ public class Game {
         private ArrayList<Question> questions;
         //player1 is the player who created the game, player2 is the other one.
         private Player player1, player2;
+        private int id;
 
         public Game() {
                 questions = new ArrayList<>();
                 player1 = null;
                 player2 = null;
+                id = -1;
         }
 
         public ArrayList<Question> getQuestions() {
                 return questions;
+        }
+
+        public int getId() {
+                return id;
+        }
+
+        public void setId(int id) {
+                this.id = id;
         }
 
         public void setQuestions(ArrayList<Question> questions) {

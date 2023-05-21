@@ -1,6 +1,7 @@
 package com.example.trivia;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Player extends User{
     //player is a user while a game
@@ -37,5 +38,18 @@ public class Player extends User{
 
     public void setIsCorrectList(ArrayList<Boolean> isCorrectList) {
         this.isCorrectList = isCorrectList;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Player player = (Player) o;
+        return currentQuestionIndex == player.currentQuestionIndex && Objects.equals(isCorrectList, player.isCorrectList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(currentQuestionIndex, isCorrectList);
     }
 }

@@ -1,23 +1,43 @@
 package com.example.trivia;
 
+import android.content.Context;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.util.ArrayList;
 
 public class GameViewModel extends ViewModel {
-    private Game game;
+    private MutableLiveData<Game> game;
     private boolean isCreator; //is this player the game creator?
+    //save the state of current player
+    //used to know whether it is changed in game's observer
+    private Player previousMyPlayer;
 
     public GameViewModel() {
-        game = new Game();
+        game = new MutableLiveData<>();
+        game.setValue(new Game());
         isCreator = true;
     }
 
     public Game getGame() {
-        return game;
+        return game.getValue();
     }
     public void setGame(Game game) {
-        this.game = game;
+        this.game.setValue(game);
     }
 
     public boolean isCreator() {
@@ -29,25 +49,25 @@ public class GameViewModel extends ViewModel {
     }
 
     public void setQuestions(ArrayList<Question> questions) {
-        game.setQuestions(questions);
+        getGame().setQuestions(questions);
     }
 
     public Player getPlayer1(){
-        return game.getPlayer1();
+        return getGame().getPlayer1();
     }
     public Player getPlayer2(){
-        return game.getPlayer2();
+        return getGame().getPlayer2();
     }
 
     public void setPlayer1(Player player1){
-        game.setPlayer1(player1);
+        getGame().setPlayer1(player1);
     }
     public void setPlayer2(Player player2){
-        game.setPlayer2(player2);
+        getGame().setPlayer2(player2);
     }
 
     public ArrayList<Question> getQuestions() {
-        return game.getQuestions();
+        return getGame().getQuestions();
     }
 
     public int getMyTotalCorrect(){
@@ -59,28 +79,116 @@ public class GameViewModel extends ViewModel {
         return count;
     }
     public int getMyTotalWrong(){
-        return game.getQuestions().size() - getMyTotalCorrect();
+        return getGame().getQuestions().size() - getMyTotalCorrect();
     }
 
     public int calculatePoints() {
-        //points = (totalCorrect * 20 / (totalWrong + 1)) * 3, with round
-
+        //(totalCorrect * 20 / (totalWrong + 1)) * 3, with round to 10
         return 10 * (int)(5 * (Math.pow(getMyTotalCorrect(), 1.2)) / (getMyTotalWrong() + 1));
     }
 
     public Player getMyPlayer() {
         if(isCreator)
             //creator is player1
-            return game.getPlayer1();
+            return getGame().getPlayer1();
         else
-            return game.getPlayer2();
+            return getGame().getPlayer2();
     }
 
     public void setMyPlayer(Player player) {
         //creator is player1
+        Game newGame = getGame();
         if(isCreator)
-            game.setPlayer1(player);
+            newGame.setPlayer1(player);
         else
-            game.setPlayer2(player);
+            newGame.setPlayer2(player);
+
+        game.setValue(newGame);
+    }
+
+    public void enableGameSyncWithFirestore(Context context){
+        previousMyPlayer = getMyPlayer();
+        String gameId = Integer.toString(getGame().getId());
+
+        //when other player is changed, update Game locally
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        firestore.collection(GameActivity.GAMES_COLLECTION_PATH).document(gameId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable DocumentSnapshot snapshot, @Nullable FirebaseFirestoreException error) {
+                        if(error == null && snapshot != null && snapshot.exists()){
+                            //no exception
+                            Game newGame = snapshot.toObject(Game.class);
+
+                            if(newGame.getPlayer2() != null){
+                                //if player2 is null, game hasn't yet started
+                                game.setValue(newGame);
+                                return;
+                            }
+
+                            Game gameValue = getGame();
+                            if(isCreator)
+                                gameValue.setPlayer2(newGame.getPlayer2());
+                            else
+                                gameValue.setPlayer1(newGame.getPlayer1());
+                            game.setValue(gameValue);
+                        }
+                    }
+                });
+
+        //when my player changed, update in firestore
+        game.observe((LifecycleOwner) context, new Observer<Game>() {
+            @Override
+            public void onChanged(Game newGame) {
+                if((previousMyPlayer == null && getMyPlayer() != null) ||
+                (previousMyPlayer != null && !previousMyPlayer.equals(getMyPlayer())))
+                    //player has changed
+                    firestore.collection(GameActivity.GAMES_COLLECTION_PATH).document(gameId).set(newGame).
+                            addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(context, "Connection error!", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+
+                if(getMyPlayer() == null)
+                    //copy constructor doesn't work with null
+                    previousMyPlayer = null;
+                else
+                    previousMyPlayer = new Player(getMyPlayer());
+            }
+        });
+    }
+
+
+    public MutableLiveData<Game> getGameLiveData() {
+        return game;
+    }
+
+    public void setMyCurrentQuestionIndex(int i) {
+        //creator is player1
+        Game newGame = getGame();
+        if(isCreator)
+            newGame.getPlayer1().setCurrentQuestionIndex(i);
+        else
+            newGame.getPlayer2().setCurrentQuestionIndex(i);
+
+        game.setValue(newGame);
+    }
+
+    public void setMyIsCorrectList(ArrayList<Boolean> isCorrectList) {
+        //creator is player1
+        Game newGame = getGame();
+        if(isCreator)
+            newGame.getPlayer1().setIsCorrectList(isCorrectList);
+        else
+            newGame.getPlayer2().setIsCorrectList(isCorrectList);
+
+        game.setValue(newGame);
+    }
+
+    public void setGameId(int gameId) {
+        Game newGame = getGame();
+        newGame.setId(gameId);
+        game.setValue(newGame);
     }
 }

@@ -5,8 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -56,6 +58,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private GameViewModel gameVM;
     private Fragment loadGameFragment;
+    private GameIdFragment gameIdFragment;
     private FirebaseFirestore firestore;
 
     @Override
@@ -92,7 +95,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             firestore.collection(USERS_COLLECTION_PATH).document(email).get().addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(GameActivity.this, "Connection error!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(GameActivity.this, "Connection error!", Toast.LENGTH_SHORT).show();//not shown
                     backToMainMenu();
                 }
             }).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -122,7 +125,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         joinGameAsync.execute(id);
                     }
                 }
-        });
+            });
 
         } else {
             //screen already initialized
@@ -137,6 +140,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         initProgressBarCanvas();
     }
 
+    //TODO: make non-static
     public static Fragment showLoadingFragment(FragmentManager fm) {
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
         Fragment loadingFragment = new LoadingFragment();
@@ -149,6 +153,18 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     public static void hideLoadingFragment(FragmentManager fm, Fragment loadGameFragment) {
         FragmentTransaction fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.hide(loadGameFragment);
+        fragmentTransaction.commit();
+    }
+
+    private void showGameIdFragment() {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        gameIdFragment = new GameIdFragment();
+        fragmentTransaction.replace(R.id.gameLayout, gameIdFragment);
+        fragmentTransaction.commit();
+    }
+    private void hideGameIdFragment() {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.hide(gameIdFragment);
         fragmentTransaction.commit();
     }
 
@@ -215,7 +231,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             } else {
                 gameVM.setQuestions(questions);
 
-                startGame();
+                sendGameToFirestore();
             }
         }
     }
@@ -238,11 +254,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             firestore.collection(GAMES_COLLECTION_PATH).document(strId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    //game loaded successfully
                     if(documentSnapshot.exists()){
                         Game game = documentSnapshot.toObject(Game.class);
 
                         gameVM.setGame(game);
+                        gameVM.enableGameSyncWithFirestore(GameActivity.this);
                         gameVM.setMyPlayer(myPlayer);
+
                         hideLoadingFragment(getSupportFragmentManager(), loadGameFragment);
                         showCurrentQuestion();
                     }
@@ -263,28 +282,45 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void startGame() {
-        //100,000-999,999
+    private void sendGameToFirestore() {
+        //random integer between 100,000-999,999
         int minId = (int)Math.pow(10, JoinGameFragment.GAME_ID_LENGTH - 1);
         int maxId = (int)Math.pow(10, JoinGameFragment.GAME_ID_LENGTH);
         int gameId = minId + (new Random().nextInt(maxId - minId));
+
+        gameVM.setGameId(gameId);
 
         //add game to DB, and wait for an enemy
         //TODO: validate ID not duplicated
         //TODO: change loading label
 
-        firestore.collection(GAMES_COLLECTION_PATH).document(Integer.toString(gameId)).set(
-                gameVM.getGame()
-        ).addOnFailureListener(new OnFailureListener() {
+        firestore.collection(GAMES_COLLECTION_PATH).document(Integer.toString(gameId))
+                .set(gameVM.getGame()).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getBaseContext(), "Failed to create game!", Toast.LENGTH_SHORT).show();
                 backToMainMenu();
             }
-        });
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        hideLoadingFragment(getSupportFragmentManager(), loadGameFragment);
+                        showGameIdFragment();
+                        //gameVM.enableGameSyncWithFirestore(this);
 
-        hideLoadingFragment(getSupportFragmentManager(), loadGameFragment);
-        showCurrentQuestion();
+                        //wait until a an enemy joins
+                        gameVM.getGameLiveData().observe(GameActivity.this, new Observer<Game>() {
+                            @Override
+                            public void onChanged(Game game) {
+                                if(game.getPlayer2() != null){
+                                    //enemy joined
+                                    hideGameIdFragment();
+                                    showCurrentQuestion();
+                                }
+                            }
+                        });
+                    }
+                });
     }
 
     public void backToMainMenu() {
@@ -329,7 +365,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         ArrayList<Boolean> isCorrectList = gameVM.getMyPlayer().getIsCorrectList();
         isCorrectList.add(isCorrect);
-        gameVM.getMyPlayer().setIsCorrectList(isCorrectList);
+        gameVM.setMyIsCorrectList(isCorrectList);
 
         if (isCorrect) {
             answerButton.setBackgroundColor(MyColor.CORRECT_GREEN);
@@ -340,7 +376,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
         drawIsCorrectOnProgressBar(isCorrect, currentQuestionIndex);
 
-        gameVM.getMyPlayer().setCurrentQuestionIndex(currentQuestionIndex + 1);
+        gameVM.setMyCurrentQuestionIndex(currentQuestionIndex + 1);
 
         for (Button answerBtn : answerButtons)
             answerBtn.setEnabled(false);

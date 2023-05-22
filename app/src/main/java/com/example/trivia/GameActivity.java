@@ -8,7 +8,6 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -57,8 +56,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton recordImgBtn;
 
     private GameViewModel gameVM;
-    private Fragment loadGameFragment;
-    private GameIdFragment gameIdFragment;
+    private Fragment loadingFragment;
+    private Fragment gameIdFragment;
     private FirebaseFirestore firestore;
 
     @Override
@@ -156,15 +155,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         fragmentTransaction.commit();
     }
 
-    private void showGameIdFragment() {
+    private void showFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        gameIdFragment = new GameIdFragment();
-        fragmentTransaction.replace(R.id.gameLayout, gameIdFragment);
+        fragmentTransaction.replace(R.id.gameLayout, fragment);
         fragmentTransaction.commit();
     }
-    private void hideGameIdFragment() {
+    private void hideFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.hide(gameIdFragment);
+        fragmentTransaction.hide(fragment);
         fragmentTransaction.commit();
     }
 
@@ -177,10 +175,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private class EndGameAsync extends AsyncTask<Void, Void, Void> {
+        private Fragment waitForEnemyFragment;
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            loadGameFragment = showLoadingFragment(getSupportFragmentManager());
+            loadingFragment = showLoadingFragment(getSupportFragmentManager());
         }
 
         @Override
@@ -201,7 +200,26 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                                 backToMainMenu();
                             }
                             else{
-                                showEndGameFragment();
+                                int questionCount = gameVM.getQuestions().size();
+                                if(gameVM.getOtherPlayer().getCurrentQuestionIndex() == questionCount)
+                                    //enemy finished too
+                                    showEndGameFragment();
+                                else{
+                                    waitForEnemyFragment = new WaitToEnemyFragment();
+                                    showFragment(waitForEnemyFragment);
+
+                                    //wait until enemy ends the game too
+                                    gameVM.getGameLiveData().observe(GameActivity.this, new Observer<Game>() {
+                                        @Override
+                                        public void onChanged(Game game) {
+                                            if(gameVM.getOtherPlayer().getCurrentQuestionIndex() == questionCount){
+                                                hideFragment(waitForEnemyFragment);
+                                                showEndGameFragment();
+                                            }
+
+                                        }
+                                    });
+                                }
                             }
                         }
                     });
@@ -213,7 +231,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private class GetQuestionsAsync extends AsyncTask<Integer, Integer, ArrayList<Question>> {
         @Override
         protected void onPreExecute() {
-            loadGameFragment = showLoadingFragment(getSupportFragmentManager());
+            loadingFragment = showLoadingFragment(getSupportFragmentManager());
         }
 
         @Override
@@ -242,7 +260,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            loadGameFragment = showLoadingFragment(getSupportFragmentManager());
+            loadingFragment = showLoadingFragment(getSupportFragmentManager());
         }
 
         @Override
@@ -262,7 +280,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         gameVM.enableGameSyncWithFirestore(GameActivity.this);
                         gameVM.setMyPlayer(myPlayer);
 
-                        hideLoadingFragment(getSupportFragmentManager(), loadGameFragment);
+                        hideLoadingFragment(getSupportFragmentManager(), loadingFragment);
                         showCurrentQuestion();
                     }
                     else{
@@ -304,8 +322,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        hideLoadingFragment(getSupportFragmentManager(), loadGameFragment);
-                        showGameIdFragment();
+                        hideLoadingFragment(getSupportFragmentManager(), loadingFragment);
+                        gameIdFragment = new GameIdFragment();
+                        showFragment(gameIdFragment);
                         gameVM.enableGameSyncWithFirestore(GameActivity.this);
 
                         //wait until a an enemy joins
@@ -314,7 +333,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                             public void onChanged(Game game) {
                                 if(game.getPlayer2() != null){
                                     //enemy joined
-                                    hideGameIdFragment();
+                                    hideFragment(gameIdFragment);
                                     showCurrentQuestion();
                                 }
                             }

@@ -194,4 +194,11 @@ public class GameViewModel extends ViewModel {
         newGame.setId(gameId);
         game.setValue(newGame);
     }
+
+    public Player getOtherPlayer() {
+        if(isCreator)
+            return getGame().getPlayer2();
+        else
+            return getGame().getPlayer1();
+    }
 }

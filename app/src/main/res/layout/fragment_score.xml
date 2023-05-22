@@ -7,7 +7,8 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    tools:context=".ScoreFragment">
+    tools:context=".ScoreFragment"
+    android:id="@+id/scoreLayout">
 
     <LinearLayout
         android:id="@+id/linearLayout3"

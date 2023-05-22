@@ -61,7 +61,8 @@ public class ScoreFragment extends Fragment {
         totalWrongLbl = v.findViewById(R.id.totalWrongLbl);
         successPercentageLbl = v.findViewById(R.id.successPercentageLbl);
 
-        //Fragment loadingFragment = GameActivity.showLoadingFragment(getChildFragmentManager());
+        Fragment loadingFragment = new LoadingFragment();
+        getChildFragmentManager().beginTransaction().replace(R.id.scoreLayout, loadingFragment).commit();
 
         //fetch user list
         FirebaseFirestore.getInstance().
@@ -89,8 +90,8 @@ public class ScoreFragment extends Fragment {
                         if(currentUser == null)
                             Toast.makeText(requireContext(), "Current user not found!", Toast.LENGTH_SHORT).show();
 
+                        getChildFragmentManager().beginTransaction().hide(loadingFragment).commit();
                         showScore();
-                        //GameActivity.hideLoadingFragment(getActivity().getSupportFragmentManager(), loadingFragment);
                     }
                 });
 
@@ -121,8 +122,8 @@ public class ScoreFragment extends Fragment {
 
         //show user list
         users.sort((o1, o2) -> (int)(o2.getScore() - o1.getScore()));
-        ScoreListAdapter scoreListAdapter = new ScoreListAdapter(requireContext(), users);
+        ScoreListAdapter scoreListAdapter = new ScoreListAdapter(getContext(), users);
         scoreRv.setAdapter(scoreListAdapter);
-        scoreRv.setLayoutManager(new LinearLayoutManager(requireContext()));
+        scoreRv.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 }

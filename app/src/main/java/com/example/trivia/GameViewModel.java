@@ -5,14 +5,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -68,23 +66,6 @@ public class GameViewModel extends ViewModel {
 
     public ArrayList<Question> getQuestions() {
         return getGame().getQuestions();
-    }
-
-    public int getMyTotalCorrect(){
-        int count = 0;
-        for(boolean isCorrect : getMyPlayer().getIsCorrectList())
-            if(isCorrect)
-                count++;
-
-        return count;
-    }
-    public int getMyTotalWrong(){
-        return getGame().getQuestions().size() - getMyTotalCorrect();
-    }
-
-    public int calculatePoints() {
-        //(totalCorrect * 20 / (totalWrong + 1)) * 3, with round to 10
-        return 10 * (int)(5 * (Math.pow(getMyTotalCorrect(), 1.2)) / (getMyTotalWrong() + 1));
     }
 
     public Player getMyPlayer() {

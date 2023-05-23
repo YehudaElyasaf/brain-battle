@@ -185,9 +185,15 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         protected Void doInBackground(Void... voids) {
             //update user score
-            gameVM.getMyPlayer().setTotalCorrect(gameVM.getMyPlayer().getTotalCorrect() + gameVM.getMyTotalCorrect());
-            gameVM.getMyPlayer().setTotalWrong(gameVM.getMyPlayer().getTotalWrong() + gameVM.getMyTotalWrong());
-            gameVM.getMyPlayer().setScore(gameVM.getMyPlayer().getScore() + gameVM.calculatePoints());
+            gameVM.getMyPlayer().setTotalCorrect(gameVM.getMyPlayer().getTotalCorrect() + gameVM.getMyPlayer().getTotalCorrectInGame());
+            gameVM.getMyPlayer().setTotalWrong(gameVM.getMyPlayer().getTotalWrong() + gameVM.getMyPlayer().getTotalWrongInGame());
+
+            int myPoints = gameVM.getMyPlayer().calculatePoints();
+            int otherPoints = gameVM.getOtherPlayer().calculatePoints();
+            if(myPoints > otherPoints)
+                //you won, add points to total score
+                gameVM.getMyPlayer().setScore(gameVM.getMyPlayer().getScore() + myPoints);
+
             User myPlayerAsUser = (User)gameVM.getMyPlayer();
 
             //send new user data to users list

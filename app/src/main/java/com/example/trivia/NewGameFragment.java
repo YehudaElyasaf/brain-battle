@@ -238,7 +238,7 @@ public class NewGameFragment extends Fragment
                 break;
 
             case R.id.playBtn:
-                Intent intent = new Intent(requireActivity(), GameActivity.class);
+                Intent intent = new Intent(getActivity(), GameActivity.class);
                 int extras[] = new int[3];
                 extras[QUESTIONS_COUNT_INDEX] = questionCount;
                 extras[DIFFICULTY_LEVEL_INDEX] = difficultyLevel.ordinal();
@@ -248,7 +248,7 @@ public class NewGameFragment extends Fragment
                 intent.putExtra(IS_NEW_GAME_EXTRA, true);
 
                 startActivity(intent);
-                requireActivity().finish();
+                getActivity().finish();
         }
     }
 }

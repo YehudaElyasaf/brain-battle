@@ -66,7 +66,7 @@ public class GameIdFragment extends Fragment {
 
         startGameGameIdLbl = view.findViewById(R.id.startGameGameIdLbl);
 
-        GameViewModel gameViewModel = new ViewModelProvider(requireActivity()).get(GameViewModel.class);
+        GameViewModel gameViewModel = new ViewModelProvider(getActivity()).get(GameViewModel.class);
         int gameId = gameViewModel.getGame().getId();
         startGameGameIdLbl.setText(Integer.toString(gameId));
 

@@ -83,10 +83,10 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
 
     private void toggleMute(){
         if(volumeSb.isEnabled()){
-            muteBtn.setImageDrawable(requireActivity().getDrawable(R.drawable.ic_volume_off));
+            muteBtn.setImageDrawable(getActivity().getDrawable(R.drawable.ic_volume_off));
             volumeSb.setEnabled(false);
         }else{
-            muteBtn.setImageDrawable(requireActivity().getDrawable(R.drawable.ic_volume));
+            muteBtn.setImageDrawable(getActivity().getDrawable(R.drawable.ic_volume));
             volumeSb.setEnabled(true);
         }
     }

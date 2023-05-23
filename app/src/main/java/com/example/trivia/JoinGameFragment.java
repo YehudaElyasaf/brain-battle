@@ -103,19 +103,12 @@ public class JoinGameFragment extends Fragment implements View.OnClickListener {
                 throw new Exception();
         }
         catch (Exception e){
-            Toast.makeText(requireContext(), "Invalid ID entered!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Invalid ID entered!", Toast.LENGTH_SHORT).show();
             gameIdTxt.setText("");
             return;
         }
 
-        Game game = new Game(); //NewGameFragment.firestoreGetGameById(intId);
-        if(game == null){
-            Toast.makeText(requireContext(), "Game not found!", Toast.LENGTH_SHORT).show();
-            gameIdTxt.setText("");
-            return;
-        }
-
-        Intent intent = new Intent(requireActivity(), GameActivity.class);
+        Intent intent = new Intent(getActivity(), GameActivity.class);
         intent.putExtra(GameActivity.IS_NEW_GAME_EXTRA, false);
         intent.putExtra(GameActivity.GAME_ID_EXTRA, intId);
 

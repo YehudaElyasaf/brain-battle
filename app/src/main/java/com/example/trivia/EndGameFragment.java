@@ -1,15 +1,20 @@
 package com.example.trivia;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.os.CountDownTimer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -26,6 +31,7 @@ public class EndGameFragment extends Fragment implements View.OnClickListener {
 
     private TextView yourScoreCountLbl;
     private TextView enemyScoreCountLbl;
+    private TextView winnerLbl;
 
     private ImageButton endGameReplayBtn;
     private ImageButton endGameHomeBtn;
@@ -70,11 +76,10 @@ public class EndGameFragment extends Fragment implements View.OnClickListener {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_end_game, container, false);
 
-        gameVM = new ViewModelProvider(requireActivity()).get(GameViewModel.class);
+        gameVM = new ViewModelProvider(getActivity()).get(GameViewModel.class);
         yourScoreCountLbl = view.findViewById(R.id.yourScoreCountLbl);
         enemyScoreCountLbl = view.findViewById(R.id.enemyScoreCountLbl);
-
-        yourScoreCountLbl.setText(Integer.toString(gameVM.calculatePoints()));
+        winnerLbl = view.findViewById(R.id.winnerLbl);
 
         endGameReplayBtn = view.findViewById(R.id.endGameReplayBtn);
         endGameHomeBtn = view.findViewById(R.id.endGameHomeBtn);
@@ -83,8 +88,44 @@ public class EndGameFragment extends Fragment implements View.OnClickListener {
         endGameHomeBtn.setOnClickListener(this);
         endGameShareBtn.setOnClickListener(this);
 
+        showResults(view);
+
         // Inflate the layout for this fragment
         return view;
+    }
+
+    private void showResults(View view) {
+        int yourScore = gameVM.getMyPlayer().calculatePoints();
+        int enemyScore = gameVM.getOtherPlayer().calculatePoints();
+
+        yourScoreCountLbl.setText(Integer.toString(yourScore));
+        enemyScoreCountLbl.setText(Integer.toString(enemyScore));
+
+        if(yourScore > enemyScore) {
+            //you won
+            winnerLbl.setText("You won!");
+
+            //decreaseScore(enemyScore, enemyScoreCountLbl);
+        }
+        else if(yourScore < enemyScore){
+            //you lost
+            winnerLbl.setText(gameVM.getOtherPlayer().getUsername() + " won!");
+
+            float tmpTextSize = 0;
+            //flip text sizes. losers' text is smaller
+            tmpTextSize = enemyScoreCountLbl.getTextSize();
+            enemyScoreCountLbl.setTextSize(yourScoreCountLbl.getTextSize());
+            yourScoreCountLbl.setTextSize(tmpTextSize);
+            //decreaseScore(yourScore, yourScoreCountLbl);
+        }
+        else{
+            //draw
+            winnerLbl.setText("Draw!");
+
+            yourScoreCountLbl.setTextSize(enemyScoreCountLbl.getTextSize());
+            //decreaseScore(yourScore, yourScoreCountLbl);
+            //decreaseScore(enemyScore, enemyScoreCountLbl);
+        }
     }
 
     @Override
@@ -93,9 +134,9 @@ public class EndGameFragment extends Fragment implements View.OnClickListener {
             case R.id.endGameReplayBtn:
                 break;
             case R.id.endGameHomeBtn:
-                Intent intent = new Intent(requireContext(), MainMenuActivity.class);
+                Intent intent = new Intent(getContext(), MainMenuActivity.class);
                 startActivity(intent);
-                requireActivity().finish();
+                getActivity().finish();
                 break;
             case R.id.endGameShareBtn:
                 break;

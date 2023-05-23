@@ -58,4 +58,26 @@ public class Player extends User{
     public int hashCode() {
         return Objects.hash(currentQuestionIndex, isCorrectList);
     }
+
+    public int calculatePoints() {
+        //(totalCorrect * 20 / (totalWrong + 1)) * 3, with round to 10
+        return 10 * (int)(5 * (Math.pow(getTotalCorrectInGame(), 1.2)) / (getTotalWrongInGame() + 1));
+    }
+
+    public int getTotalCorrectInGame(){
+        int count = 0;
+        for(boolean isCorrect : isCorrectList)
+            if(isCorrect)
+                count++;
+
+        return count;
+    }
+    public int getTotalWrongInGame(){
+        int count = 0;
+        for(boolean isCorrect : isCorrectList)
+            if(!isCorrect)
+                count++;
+
+        return count;
+    }
 }

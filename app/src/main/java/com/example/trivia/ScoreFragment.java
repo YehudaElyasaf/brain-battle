@@ -69,7 +69,7 @@ public class ScoreFragment extends Fragment {
                 collection(GameActivity.USERS_COLLECTION_PATH).get().addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(requireContext(), "Connection error!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Connection error!", Toast.LENGTH_SHORT).show();
                         //back to main manu
                         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
                         ft.replace(R.id.mainFragmentContainer, new NewGameFragment()).commit();
@@ -88,7 +88,7 @@ public class ScoreFragment extends Fragment {
                             if(user.getUid().equals(FirebaseAuth.getInstance().getUid()))
                                 currentUser = user;
                         if(currentUser == null)
-                            Toast.makeText(requireContext(), "Current user not found!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Current user not found!", Toast.LENGTH_SHORT).show();
 
                         getChildFragmentManager().beginTransaction().hide(loadingFragment).commit();
                         showScore();

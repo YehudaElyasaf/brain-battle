@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.os.CountDownTimer;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -104,18 +105,14 @@ public class EndGameFragment extends Fragment implements View.OnClickListener {
         if(yourScore > enemyScore) {
             //you won
             winnerLbl.setText("You won!");
+            yourScoreCountLbl.setTextSize(TypedValue.COMPLEX_UNIT_SP, 84);
 
             //decreaseScore(enemyScore, enemyScoreCountLbl);
         }
         else if(yourScore < enemyScore){
             //you lost
             winnerLbl.setText(gameVM.getOtherPlayer().getUsername() + " won!");
-
-            float tmpTextSize = 0;
-            //flip text sizes. losers' text is smaller
-            tmpTextSize = enemyScoreCountLbl.getTextSize();
-            enemyScoreCountLbl.setTextSize(yourScoreCountLbl.getTextSize());
-            yourScoreCountLbl.setTextSize(tmpTextSize);
+            enemyScoreCountLbl.setTextSize(TypedValue.COMPLEX_UNIT_SP, 84);
             //decreaseScore(yourScore, yourScoreCountLbl);
         }
         else{

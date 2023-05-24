@@ -16,7 +16,7 @@
         android:layout_marginTop="-10dp"
         android:text="99999"
         android:textColor="#FF007777"
-        android:textSize="88dp"
+        android:textSize="64dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView3" />

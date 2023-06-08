@@ -16,7 +16,7 @@ import com.google.android.material.navigation.NavigationBarView;
 
 public class MainMenuActivity extends AppCompatActivity
         implements GestureDetector.OnGestureListener {
-    public static final int MIN_SWIPE_LENGTH = 100;
+    private static final int MIN_SWIPE_LENGTH = 150;
 
     private GestureDetectorCompat swipeDetector;
     private BottomNavigationView navigationView;

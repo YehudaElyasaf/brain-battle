@@ -125,18 +125,17 @@ public class NewGameFragment extends Fragment
         mediumDifficultyLevelBtn.setAlpha(UNSELECTED_BUTTON_ALPHA);
         hardDifficultyLevelBtn.setAlpha(UNSELECTED_BUTTON_ALPHA);
 
+        difficultyLevel = newDifficultyLevel;
+
         switch (newDifficultyLevel){
             case EASY:
                 easyDifficultyLevelBtn.setAlpha(1);
-                difficultyLevel = EASY;
                 break;
             case MEDIUM:
                 mediumDifficultyLevelBtn.setAlpha(1);
-                difficultyLevel = MEDIUM;
                 break;
             case HARD:
                 hardDifficultyLevelBtn.setAlpha(1);
-                difficultyLevel = HARD;
                 break;
         }
     }

@@ -38,7 +38,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private TextView loginStatusLbl;
 
     private Mode mode;
-    private FirebaseAuth firebaseAuth;
 
     private void switchToLoginMode() {
         loginButton.setText("Log In");
@@ -59,7 +58,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void login(String username, String password) {
         if(!validateUsernameAnsPassword(username, password))
             return;
-        firebaseAuth.signInWithEmailAndPassword(username, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+        FirebaseAuth.getInstance().signInWithEmailAndPassword(username, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
@@ -91,12 +90,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         String email = username;
 
-        firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
                     //add user to users list
-                    User user = new User(username, firebaseAuth.getUid(), 0, 0, 0);
+                    User user = new User(username, FirebaseAuth.getInstance().getUid(), 0, 0, 0);
                     FirebaseFirestore.getInstance().
                             collection(GameActivity.USERS_COLLECTION_PATH).document(email).set(user).
                             addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -172,8 +171,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        firebaseAuth = FirebaseAuth.getInstance();
-        if(firebaseAuth.getCurrentUser() != null)
+        if(FirebaseAuth.getInstance().getCurrentUser() != null)
             //TODO: connect automatically
             //FirebaseAuth.getInstance().signOut();
             startMainMenuActivity();

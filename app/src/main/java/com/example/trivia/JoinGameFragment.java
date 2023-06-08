@@ -34,10 +34,10 @@ public class JoinGameFragment extends Fragment implements View.OnClickListener {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    public static final int GAME_ID_LENGTH = 7;
 
     private String mParam1;
     private String mParam2;
+    public static final int GAME_ID_LENGTH = 7;
 
     private EditText gameIdTxt;
     private Button joinGameBtn;

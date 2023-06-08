@@ -65,6 +65,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
+        //show loading fragment
+        new ShowLoadingFragmentAsync().execute();
+
         currentQuestionLbl = findViewById(R.id.currentQuestionLbl);
         questionLbl = findViewById(R.id.questionLbl);
         answerButtons = new Button[4];
@@ -238,11 +241,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private class GetQuestionsAsync extends AsyncTask<Integer, Integer, ArrayList<Question>> {
         @Override
-        protected void onPreExecute() {
-            loadingFragment = showLoadingFragment(getSupportFragmentManager());
-        }
-
-        @Override
         //params: question count, difficulty level, category
         protected ArrayList<Question> doInBackground(Integer... integers) {
             HttpQuestionFetcher questionFetcher = new HttpQuestionFetcher();
@@ -264,13 +262,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private class JoinGameAsync extends AsyncTask<Integer, Integer, Void>{
-        //TODO: move asyncTasks to their fragment in Create/JoinGame ???
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            loadingFragment = showLoadingFragment(getSupportFragmentManager());
-        }
-
         @Override
         //params: id
         protected Void doInBackground(Integer... integers) {
@@ -304,6 +295,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 }
             });
 
+            return null;
+        }
+    }
+
+    private class ShowLoadingFragmentAsync extends AsyncTask<Void, Void, Void>{
+        @Override
+        protected Void doInBackground(Void... voids) {
+            loadingFragment = showLoadingFragment(getSupportFragmentManager());
             return null;
         }
     }

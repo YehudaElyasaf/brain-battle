@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Locale;
 
 
-public class HttpQuestionFetcher implements IQuestionFetcher {
+public class HttpQuestionFetcher  {
     private static final String DATABASE_URL_ADDRESS = "https://opentdb.com/api.php";
 
     private static final int OK_RESPONSE_CODE = 0;
@@ -30,7 +30,6 @@ public class HttpQuestionFetcher implements IQuestionFetcher {
 
     private String response;
 
-    @Override
     public ArrayList<Question> getQuestions(int questionCount, int difficultyLevel, int category) {
         response = "";
         //run in other thread, because networking isn't allowed in main thread

@@ -209,6 +209,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                                 int questionCount = gameVM.getQuestions().size();
                                 if(gameVM.getOtherPlayer().getCurrentQuestionIndex() == questionCount)
                                     //enemy finished too
+
+                                    //TODO: delete game from firestore
                                     showEndGameFragment();
                                 else{
                                     waitForEnemyFragment = new WaitToEnemyFragment();
@@ -243,7 +245,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         //params: question count, difficulty level, category
         protected ArrayList<Question> doInBackground(Integer... integers) {
-            IQuestionFetcher questionFetcher = new HttpQuestionFetcher();
+            HttpQuestionFetcher questionFetcher = new HttpQuestionFetcher();
             return questionFetcher.getQuestions(integers[QUESTIONS_COUNT_INDEX], integers[DIFFICULTY_LEVEL_INDEX], integers[CATEGORY_INDEX]);
         }
 

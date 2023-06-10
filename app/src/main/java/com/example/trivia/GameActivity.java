@@ -57,6 +57,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private GameViewModel gameVM;
     private Fragment loadingFragment;
+    private Fragment waitForEnemyFragment;
     private Fragment gameIdFragment;
     private FirebaseFirestore firestore;
 
@@ -177,66 +178,60 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         fragmentTransaction.commit();
     }
 
-    private class EndGameAsync extends AsyncTask<Void, Void, Void> {
-        private Fragment waitForEnemyFragment;
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            loadingFragment = showLoadingFragment(getSupportFragmentManager());
+    private void waitForEnemy(){
+        loadingFragment = showLoadingFragment(getSupportFragmentManager());
+
+        int questionCount = gameVM.getQuestions().size();
+        if(gameVM.getOtherPlayer().getCurrentQuestionIndex() == questionCount)
+            //enemy finished too
+            endGame();
+        else{
+            waitForEnemyFragment = new WaitToEnemyFragment();
+            showFragment(waitForEnemyFragment);
+            //wait until enemy ends the game too
+            gameVM.getGameLiveData().observe(GameActivity.this, new Observer<Game>() {
+                @Override
+                public void onChanged(Game game) {
+                    if(gameVM.getOtherPlayer().getCurrentQuestionIndex() == questionCount){
+                        //enemy finished
+                        hideFragment(waitForEnemyFragment);
+                        endGame();
+                    }
+
+                }
+            });
         }
+    }
 
-        @Override
-        protected Void doInBackground(Void... voids) {
-            //update user score
-            gameVM.getMyPlayer().setTotalCorrect(gameVM.getMyPlayer().getTotalCorrect() + gameVM.getMyPlayer().getTotalCorrectInGame());
-            gameVM.getMyPlayer().setTotalWrong(gameVM.getMyPlayer().getTotalWrong() + gameVM.getMyPlayer().getTotalWrongInGame());
+    private void endGame() {
+        //TODO: delete game from firestore
 
-            int myPoints = gameVM.getMyPlayer().calculatePoints();
-            int otherPoints = gameVM.getOtherPlayer().calculatePoints();
-            if(myPoints > otherPoints)
-                //you won, add points to total score
-                gameVM.getMyPlayer().setScore(gameVM.getMyPlayer().getScore() + myPoints);
+        //update user score
+        gameVM.getMyPlayer().setTotalCorrect(gameVM.getMyPlayer().getTotalCorrect() + gameVM.getMyPlayer().getTotalCorrectInGame());
+        gameVM.getMyPlayer().setTotalWrong(gameVM.getMyPlayer().getTotalWrong() + gameVM.getMyPlayer().getTotalWrongInGame());
 
-            User myPlayerAsUser = (User)gameVM.getMyPlayer();
+        int myPoints = gameVM.getMyPlayer().calculatePoints();
+        int otherPoints = gameVM.getOtherPlayer().calculatePoints();
+        if(myPoints > otherPoints)
+            //you won, add points to total score
+            gameVM.getMyPlayer().setScore(gameVM.getMyPlayer().getScore() + myPoints);
 
-            //send new user data to users list
-            firestore.collection(USERS_COLLECTION_PATH).document(gameVM.getMyPlayer().getEmail())
-                    .set(myPlayerAsUser).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if(!task.isSuccessful()){
-                                Toast.makeText(GameActivity.this, "Connection error!", Toast.LENGTH_SHORT).show();
-                                backToMainMenu();
-                            }
-                            else{
-                                int questionCount = gameVM.getQuestions().size();
-                                if(gameVM.getOtherPlayer().getCurrentQuestionIndex() == questionCount)
-                                    //enemy finished too
-
-                                    //TODO: delete game from firestore
-                                    showEndGameFragment();
-                                else{
-                                    waitForEnemyFragment = new WaitToEnemyFragment();
-                                    showFragment(waitForEnemyFragment);
-
-                                    //wait until enemy ends the game too
-                                    gameVM.getGameLiveData().observe(GameActivity.this, new Observer<Game>() {
-                                        @Override
-                                        public void onChanged(Game game) {
-                                            if(gameVM.getOtherPlayer().getCurrentQuestionIndex() == questionCount){
-                                                hideFragment(waitForEnemyFragment);
-                                                showEndGameFragment();
-                                            }
-
-                                        }
-                                    });
-                                }
-                            }
+        User myPlayerAsUser = gameVM.getMyPlayer();
+        //send new user data to users list
+        firestore.collection(USERS_COLLECTION_PATH).document(gameVM.getMyPlayer().getEmail())
+                .set(myPlayerAsUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if(!task.isSuccessful()){
+                            Toast.makeText(GameActivity.this, "Connection error!", Toast.LENGTH_SHORT).show();
+                            backToMainMenu();
                         }
-                    });
-
-            return null;
-        }
+                        else{
+                            //game updated successfully
+                            showEndGameFragment();
+                        }
+                    }
+                });
     }
 
     private class GetQuestionsAsync extends AsyncTask<Integer, Integer, ArrayList<Question>> {
@@ -413,8 +408,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             public void run() {
                 if (currentQuestionIndex == gameVM.getQuestions().size() - 1) {
                     //game ended
-                    EndGameAsync endGameAsync = new EndGameAsync();
-                    endGameAsync.execute();
+                    waitForEnemy(); //function waitForEnemy also ends the game
 
                 } else {
                     showCurrentQuestion();

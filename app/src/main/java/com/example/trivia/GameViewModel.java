@@ -21,9 +21,6 @@ import java.util.ArrayList;
 public class GameViewModel extends ViewModel {
     private MutableLiveData<Game> game;
     private boolean isCreator; //is this player the game creator?
-    //save the state of current player
-    //used to know whether it is changed in game's observer
-    private Player previousMyPlayer;
 
     public GameViewModel() {
         game = new MutableLiveData<>();
@@ -87,6 +84,9 @@ public class GameViewModel extends ViewModel {
         game.setValue(newGame);
     }
 
+    //save the state of current player
+    //used to know whether it is changed in game's observer
+    private Player previousMyPlayer;
     public void enableGameSyncWithFirestore(Context context){
         previousMyPlayer = getMyPlayer();
         String gameId = Integer.toString(getGame().getId());

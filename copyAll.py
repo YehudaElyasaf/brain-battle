@@ -1,4 +1,5 @@
 import os
+import clipboard
 
 dirs = [
     '/home/yehuda/YEHUDA/Desktop/brain-battle/app/src/main/java/com/example/trivia/',
@@ -6,11 +7,16 @@ dirs = [
     '/home/yehuda/YEHUDA/Desktop/brain-battle/app/src/main/res/values/'
 ]
 
-for dir in dirs:
-    for filePath in os.listdir(dir):
-        file = open(dir+filePath)
+text_to_copy = ''
 
-        print(f'{file}:')
-        print(file.read())
+for dir in dirs:
+    for file_path in os.listdir(dir):
+        file = open(dir+file_path)
+
+        text_to_copy += f'\n\n\n:{file_path}:\n'.upper()
+        text_to_copy += file.read()
 
         file.close()
+
+clipboard.copy(text_to_copy)
+print(text_to_copy)

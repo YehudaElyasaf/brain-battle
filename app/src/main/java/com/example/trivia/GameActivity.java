@@ -1,20 +1,34 @@
 package com.example.trivia;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.PackageManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.CalendarContract;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -31,9 +45,11 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.Random;
 
-public class GameActivity extends AppCompatActivity implements View.OnClickListener {
+public class GameActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener {
     public static final String GAMES_COLLECTION_PATH = "games";
     public static final String USERS_COLLECTION_PATH = "users";
 
@@ -89,7 +105,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         homeImgBtn.setOnClickListener(this);
         for (Button answer : answerButtons)
             answer.setOnClickListener(this);
-        recordImgBtn.setOnClickListener(this);
+        recordImgBtn.setOnTouchListener(this);
 
         if (gameVM.getMyPlayer() == null) {
             //init screen
@@ -110,7 +126,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
                     //create/join game
                     //screen not initialized
-                    if(gameVM.isCreator()){
+                    if (gameVM.isCreator()) {
                         //create new game
                         int[] extras = getIntent().getIntArrayExtra(NEW_GAME_EXTRAS);
                         int questionsCount = extras[QUESTIONS_COUNT_INDEX];
@@ -119,8 +135,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
                         GetQuestionsAsync getQuestionsAsync = new GetQuestionsAsync();
                         getQuestionsAsync.execute(questionsCount, difficultyLevel.ordinal(), category.ordinal());
-                    }
-                    else{
+                    } else {
                         //not creator
                         //join existing game
                         int id = getIntent().getIntExtra(GAME_ID_EXTRA, -1);
@@ -164,6 +179,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         fragmentTransaction.replace(R.id.gameLayout, fragment);
         fragmentTransaction.commit();
     }
+
     private void hideFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.hide(fragment);
@@ -178,21 +194,21 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         fragmentTransaction.commit();
     }
 
-    private void waitForEnemy(){
+    private void waitForEnemy() {
         loadingFragment = showLoadingFragment(getSupportFragmentManager());
 
         int questionCount = gameVM.getQuestions().size();
-        if(gameVM.getOtherPlayer().getCurrentQuestionIndex() == questionCount)
+        if (gameVM.getOtherPlayer().getCurrentQuestionIndex() == questionCount)
             //enemy finished too
             endGame();
-        else{
+        else {
             waitForEnemyFragment = new WaitToEnemyFragment();
             showFragment(waitForEnemyFragment);
             //wait until enemy ends the game too
             gameVM.getGameLiveData().observe(GameActivity.this, new Observer<Game>() {
                 @Override
                 public void onChanged(Game game) {
-                    if(gameVM.getOtherPlayer().getCurrentQuestionIndex() == questionCount){
+                    if (gameVM.getOtherPlayer().getCurrentQuestionIndex() == questionCount) {
                         //enemy finished
                         hideFragment(waitForEnemyFragment);
                         endGame();
@@ -212,7 +228,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         int myPoints = gameVM.getMyPlayer().calculatePoints();
         int otherPoints = gameVM.getOtherPlayer().calculatePoints();
-        if(myPoints > otherPoints)
+        if (myPoints > otherPoints)
             //you won, add points to total score
             gameVM.getMyPlayer().setScore(gameVM.getMyPlayer().getScore() + myPoints);
 
@@ -222,17 +238,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 .set(myPlayerAsUser).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        if(!task.isSuccessful()){
+                        if (!task.isSuccessful()) {
                             Toast.makeText(GameActivity.this, "Connection error!", Toast.LENGTH_SHORT).show();
                             backToMainMenu();
-                        }
-                        else{
+                        } else {
                             //game updated successfully
                             showEndGameFragment();
                         }
                     }
                 });
     }
+
 
     private class GetQuestionsAsync extends AsyncTask<Integer, Integer, ArrayList<Question>> {
         @Override
@@ -256,7 +272,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    private class JoinGameAsync extends AsyncTask<Integer, Integer, Void>{
+    private class JoinGameAsync extends AsyncTask<Integer, Integer, Void> {
         @Override
         //params: id
         protected Void doInBackground(Integer... integers) {
@@ -267,7 +283,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     //game loaded successfully
-                    if(documentSnapshot.exists()){
+                    if (documentSnapshot.exists()) {
                         Game game = documentSnapshot.toObject(Game.class);
 
                         gameVM.setGame(game);
@@ -276,8 +292,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
                         hideLoadingFragment(getSupportFragmentManager(), loadingFragment);
                         showCurrentQuestion();
-                    }
-                    else{
+                    } else {
                         Toast.makeText(GameActivity.this, "Wrong game ID!", Toast.LENGTH_SHORT).show();
                         backToMainMenu();
                     }
@@ -294,7 +309,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private class ShowLoadingFragmentAsync extends AsyncTask<Void, Void, Void>{
+    private class ShowLoadingFragmentAsync extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
             loadingFragment = showLoadingFragment(getSupportFragmentManager());
@@ -304,8 +319,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private void sendGameToFirestore() {
         //random integer between 100,000-999,999
-        int minId = (int)Math.pow(10, JoinGameFragment.GAME_ID_LENGTH - 1);
-        int maxId = (int)Math.pow(10, JoinGameFragment.GAME_ID_LENGTH);
+        int minId = (int) Math.pow(10, JoinGameFragment.GAME_ID_LENGTH - 1);
+        int maxId = (int) Math.pow(10, JoinGameFragment.GAME_ID_LENGTH);
         int gameId = minId + (new Random().nextInt(maxId - minId));
 
         gameVM.setGameId(gameId);
@@ -316,12 +331,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         firestore.collection(GAMES_COLLECTION_PATH).document(Integer.toString(gameId))
                 .set(gameVM.getGame()).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getBaseContext(), "Failed to create game!", Toast.LENGTH_SHORT).show();
-                backToMainMenu();
-            }
-        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getBaseContext(), "Failed to create game!", Toast.LENGTH_SHORT).show();
+                        backToMainMenu();
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
                         hideLoadingFragment(getSupportFragmentManager(), loadingFragment);
@@ -333,7 +348,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         gameVM.getGameLiveData().observe(GameActivity.this, new Observer<Game>() {
                             @Override
                             public void onChanged(Game game) {
-                                if(game.getPlayer2() != null){
+                                if (game.getPlayer2() != null) {
                                     //enemy joined
                                     hideFragment(gameIdFragment);
                                     showCurrentQuestion();
@@ -353,11 +368,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private void showCurrentQuestion() {
         int currentQuestionIndex = 0;
         Player myPlayer = gameVM.getMyPlayer();
-        if(myPlayer != null)
+        if (myPlayer != null)
             currentQuestionIndex = myPlayer.getCurrentQuestionIndex();
         int totalQuestions = gameVM.getQuestions().size();
 
-        if(currentQuestionIndex >= totalQuestions)
+        if (currentQuestionIndex >= totalQuestions)
             //no more questions
             return;
 
@@ -430,9 +445,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         progressImg.setImageBitmap(progressBitmap);
 
         Player myPlayer = gameVM.getMyPlayer();
-        if(myPlayer != null){
+        if (myPlayer != null) {
             ArrayList<Boolean> isCorrectList = gameVM.getMyPlayer().getIsCorrectList();
-            for(int i = 0; i < isCorrectList.size(); i++)
+            for (int i = 0; i < isCorrectList.size(); i++)
                 drawIsCorrectOnProgressBar(isCorrectList.get(i), i);
         }
     }
@@ -455,13 +470,21 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        for(int i = 0; i< answerButtons.length; i++)
-            if(v.getId()== answerButtons[i].getId())
+        for (int i = 0; i < answerButtons.length; i++)
+            if (v.getId() == answerButtons[i].getId())
                 sendAnswer(i, (Button) v);
+    }
 
-        switch (v.getId()) {
-            case R.id.recordImgBtn:
-                break;
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        if (v.getId() == R.id.recordImgBtn) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                AnswerRecorder.startRecording(this, answerButtons);
+            } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                AnswerRecorder.stopRecording();
+            }
         }
+
+        return true;
     }
 }

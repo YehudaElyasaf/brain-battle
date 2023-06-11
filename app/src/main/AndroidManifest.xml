@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:allowBackup="true"
@@ -16,6 +17,7 @@
         android:theme="@style/Theme.Trivia"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <service android:name=".MusicService"/>
         <activity
             android:name=".MainMenuActivity"
             android:exported="false">

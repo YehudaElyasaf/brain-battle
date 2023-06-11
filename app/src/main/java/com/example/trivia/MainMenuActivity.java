@@ -2,10 +2,13 @@ package com.example.trivia;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.MenuItem;
@@ -24,11 +27,16 @@ public class MainMenuActivity extends AppCompatActivity
     private JoinGameFragment joinGameFragment;
     private ScoreFragment scoreFragment;
     private SettingsFragment settingFragment;
+    private Intent bgMusicIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
+
+        //start background music service
+        bgMusicIntent = new Intent(this, MusicService.class);
+        ContextCompat.startForegroundService(this, bgMusicIntent);
 
         navigationView = findViewById(R.id.mainNavigationView);
         newGameFragment = new NewGameFragment();

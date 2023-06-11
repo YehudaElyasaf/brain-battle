@@ -2,7 +2,12 @@ package com.example.trivia;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +21,8 @@ import android.widget.SeekBar;
  * create an instance of this fragment.
  */
 public class SettingsFragment extends Fragment implements View.OnClickListener {
+    public static MutableLiveData<Float> backgroundMusicVolume;
+
     private ImageButton deleteUserBtn;
     private ImageButton editUsernameBtn;
     private ImageButton logoutBtn;
@@ -59,40 +66,68 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    private void initViews(View v){
+    private void initViews(View v) {
         deleteUserBtn = v.findViewById(R.id.deleteUserImgBtn);
         editUsernameBtn = v.findViewById(R.id.editUsernameImgBtn);
         logoutBtn = v.findViewById(R.id.logoutImgBtn);
         muteBtn = v.findViewById(R.id.muteImgBtn);
-        volumeSb = v.findViewById(R.id.volumeSb);
+        initVolumeSb(v);
 
         deleteUserBtn.setOnClickListener(this);
         editUsernameBtn.setOnClickListener(this);
         muteBtn.setOnClickListener(this);
     }
+
+    private void initVolumeSb(View v) {
+        volumeSb = v.findViewById(R.id.volumeSb);
+        //multiplied by 100 because volume is between 0-1 and progress is between 0-100
+        volumeSb.setProgress(backgroundMusicVolume.getValue().intValue() * 100);
+        volumeSb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                backgroundMusicVolume.setValue((float)progress / 100);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view =inflater.inflate(R.layout.fragment_settings, container, false);
+        View view = inflater.inflate(R.layout.fragment_settings, container, false);
         initViews(view);
 
         return view;
     }
 
 
-    private void toggleMute(){
-        if(volumeSb.isEnabled()){
+    private void toggleMute() {
+        if (volumeSb.isEnabled()) {
+            //mute
+            backgroundMusicVolume.setValue(0f);
             muteBtn.setImageDrawable(getActivity().getDrawable(R.drawable.ic_volume_off));
             volumeSb.setEnabled(false);
-        }else{
+        } else {
+            //unmute
+            backgroundMusicVolume.setValue(1f);
             muteBtn.setImageDrawable(getActivity().getDrawable(R.drawable.ic_volume));
             volumeSb.setEnabled(true);
         }
     }
+
     @Override
     public void onClick(View v) {
-        switch(v.getId()){
+        switch (v.getId()) {
             case R.id.deleteUserImgBtn:
                 break;
             case R.id.editUsernameImgBtn:

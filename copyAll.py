@@ -13,7 +13,7 @@ for dir in dirs:
     for file_path in os.listdir(dir):
         file = open(dir+file_path)
 
-        text_to_copy += f'\n\n\n:{file_path}:\n'.upper()
+        text_to_copy += f'\n\n\n:{file_path}:\n'
         text_to_copy += file.read()
 
         file.close()

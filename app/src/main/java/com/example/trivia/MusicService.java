@@ -23,7 +23,7 @@ import androidx.lifecycle.Observer;
 
 public class MusicService extends Service {
 
-    private static final int ONGOING_NOTIFICATION_ID = 110;
+    private static final int ONGOING_NOTIFICATION_ID = 4242;
     private static final String MUSIC_NOTIFICATION_CHANNEL_ID = "MUSIC";
     private MediaPlayer mediaPlayer;
 

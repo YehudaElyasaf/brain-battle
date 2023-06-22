@@ -47,7 +47,8 @@
             android:layout_height="wrap_content"
             android:backgroundTint="#00FFFFFF"
             android:paddingLeft="20dp"
-            android:src="@android:drawable/ic_menu_set_as" />
+            android:src="@android:drawable/ic_menu_upload"
+            android:rotation="90"/>
     </LinearLayout>
 
 
@@ -71,27 +72,4 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/exitSettingsBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Discard" />
-
-        <Button
-            android:id="@+id/saveSettingsBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Save" />
-
-    </LinearLayout>
-
 </LinearLayout>

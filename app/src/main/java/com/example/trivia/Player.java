@@ -24,6 +24,7 @@ public class Player extends User{
         isCorrectList = player.isCorrectList;
     }
 
+    //c'tor isn't used but required to Firestore's deserialization
     public Player() {
         super();
         currentQuestionIndex = 0;

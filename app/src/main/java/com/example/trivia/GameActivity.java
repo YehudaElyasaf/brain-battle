@@ -1,33 +1,20 @@
 package com.example.trivia;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.PackageManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.CalendarContract;
-import android.speech.RecognitionListener;
-import android.speech.RecognizerIntent;
-import android.speech.SpeechRecognizer;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -45,8 +32,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Objects;
 import java.util.Random;
 
 public class GameActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener {
@@ -111,7 +96,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             //init screen
             //get user data
             String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
-            firestore.collection(USERS_COLLECTION_PATH).document(email).get().addOnFailureListener(new OnFailureListener() {
+            String username = User.emailToUsername(email);
+            firestore.collection(USERS_COLLECTION_PATH).document(username).get().addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     Toast.makeText(GameActivity.this, "Connection error!", Toast.LENGTH_SHORT).show();//not shown
@@ -158,22 +144,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         initProgressBarCanvas();
     }
 
-    //TODO: make non-static
-    public static Fragment showLoadingFragment(FragmentManager fm) {
-        FragmentTransaction fragmentTransaction = fm.beginTransaction();
-        Fragment loadingFragment = new LoadingFragment();
-        fragmentTransaction.replace(R.id.gameLayout, loadingFragment);
-        fragmentTransaction.commit();
-
-        return loadingFragment;
-    }
-
-    public static void hideLoadingFragment(FragmentManager fm, Fragment loadGameFragment) {
-        FragmentTransaction fragmentTransaction = fm.beginTransaction();
-        fragmentTransaction.hide(loadGameFragment);
-        fragmentTransaction.commit();
-    }
-
     private void showFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.gameLayout, fragment);
@@ -195,7 +165,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void waitForEnemy() {
-        loadingFragment = showLoadingFragment(getSupportFragmentManager());
+        loadingFragment = new LoadingFragment();
+        showFragment(loadingFragment);
 
         int questionCount = gameVM.getQuestions().size();
         if (gameVM.getOtherPlayer().getCurrentQuestionIndex() == questionCount)
@@ -220,7 +191,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void endGame() {
-        //TODO: delete game from firestore
+        //try delete game
+        //if failed, do nothing
+        firestore.collection(GAMES_COLLECTION_PATH)
+                .document(Integer.toString(gameVM.getGame().getId())).delete();
 
         //update user score
         gameVM.getMyPlayer().setTotalCorrect(gameVM.getMyPlayer().getTotalCorrect() + gameVM.getMyPlayer().getTotalCorrectInGame());
@@ -234,7 +208,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         User myPlayerAsUser = gameVM.getMyPlayer();
         //send new user data to users list
-        firestore.collection(USERS_COLLECTION_PATH).document(gameVM.getMyPlayer().getEmail())
+        firestore.collection(USERS_COLLECTION_PATH).document(gameVM.getMyPlayer().getUsername())
                 .set(myPlayerAsUser).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -290,7 +264,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         gameVM.enableGameSyncWithFirestore(GameActivity.this);
                         gameVM.setMyPlayer(myPlayer);
 
-                        hideLoadingFragment(getSupportFragmentManager(), loadingFragment);
+                        hideFragment(loadingFragment);
                         showCurrentQuestion();
                     } else {
                         Toast.makeText(GameActivity.this, "Wrong game ID!", Toast.LENGTH_SHORT).show();
@@ -312,7 +286,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private class ShowLoadingFragmentAsync extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
-            loadingFragment = showLoadingFragment(getSupportFragmentManager());
+            loadingFragment = new LoadingFragment();
+            showFragment(loadingFragment);
             return null;
         }
     }
@@ -323,38 +298,56 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         int maxId = (int) Math.pow(10, JoinGameFragment.GAME_ID_LENGTH);
         int gameId = minId + (new Random().nextInt(maxId - minId));
 
-        gameVM.setGameId(gameId);
+        //check if ID isn't already taken
+        firestore.collection(GAMES_COLLECTION_PATH).document(Integer.toString(gameId)).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if(documentSnapshot.exists()){
+                            //game ID already taken
+                            //generate new ID (recursively)
+                            sendGameToFirestore();
+                            return;
+                        }
 
-        //add game to DB, and wait for an enemy
-        //TODO: validate ID not duplicated
-        //TODO: change loading label
+                        //valid game ID
+                        gameVM.setGameId(gameId);
 
-        firestore.collection(GAMES_COLLECTION_PATH).document(Integer.toString(gameId))
-                .set(gameVM.getGame()).addOnFailureListener(new OnFailureListener() {
+                        //add game to DB, and wait for an enemy
+                        firestore.collection(GAMES_COLLECTION_PATH).document(Integer.toString(gameId))
+                                .set(gameVM.getGame()).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(getBaseContext(), "Failed to create game!", Toast.LENGTH_SHORT).show();
+                                        backToMainMenu();
+                                    }
+                                }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        hideFragment(loadingFragment);
+                                        gameIdFragment = new GameIdFragment();
+                                        showFragment(gameIdFragment);
+                                        gameVM.enableGameSyncWithFirestore(GameActivity.this);
+
+                                        //wait until a an enemy joins
+                                        gameVM.getGameLiveData().observe(GameActivity.this, new Observer<Game>() {
+                                            @Override
+                                            public void onChanged(Game game) {
+                                                if (game.getPlayer2() != null) {
+                                                    //enemy joined
+                                                    hideFragment(gameIdFragment);
+                                                    showCurrentQuestion();
+                                                }
+                                            }
+                                        });
+                                    }
+                                });
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Toast.makeText(getBaseContext(), "Failed to create game!", Toast.LENGTH_SHORT).show();
                         backToMainMenu();
-                    }
-                }).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        hideLoadingFragment(getSupportFragmentManager(), loadingFragment);
-                        gameIdFragment = new GameIdFragment();
-                        showFragment(gameIdFragment);
-                        gameVM.enableGameSyncWithFirestore(GameActivity.this);
-
-                        //wait until a an enemy joins
-                        gameVM.getGameLiveData().observe(GameActivity.this, new Observer<Game>() {
-                            @Override
-                            public void onChanged(Game game) {
-                                if (game.getPlayer2() != null) {
-                                    //enemy joined
-                                    hideFragment(gameIdFragment);
-                                    showCurrentQuestion();
-                                }
-                            }
-                        });
                     }
                 });
     }

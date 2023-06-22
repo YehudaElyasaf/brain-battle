@@ -7,6 +7,8 @@ public class User {
     protected int totalCorrect;
     protected int totalWrong;
 
+    private static String EMAIL_SUFFIX = "@1.1";
+
     public User(String username, String uid, int score, int totalCorrect, int totalWrong) {
         this.username = username;
         this.uid = uid;
@@ -31,12 +33,16 @@ public class User {
         this.totalWrong = user.totalWrong;
     }
 
-    public String getUsername() {
-        return username;
+    public static String usernameToEmail(String username) {
+        return username + EMAIL_SUFFIX;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public static String emailToUsername(String email) {
+        return email.substring(0, email.indexOf('@'));
+    }
+
+    public String getUsername() {
+        return username;
     }
 
     public String getUid() {
@@ -71,8 +77,7 @@ public class User {
         this.score = score;
     }
 
-    public String getEmail(){
-        //TODO: return username + "@1.1"
-        return username;
+    public String getEmail() {
+        return usernameToEmail(username);
     }
 }

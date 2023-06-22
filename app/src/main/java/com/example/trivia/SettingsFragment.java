@@ -1,19 +1,27 @@
 package com.example.trivia;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -23,6 +31,7 @@ import android.widget.SeekBar;
 public class SettingsFragment extends Fragment implements View.OnClickListener {
     public static MutableLiveData<Float> backgroundMusicVolume;
 
+    private TextView usernameLbl;
     private ImageButton deleteUserBtn;
     private ImageButton editUsernameBtn;
     private ImageButton logoutBtn;
@@ -67,6 +76,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
     }
 
     private void initViews(View v) {
+        usernameLbl = v.findViewById(R.id.usernameLbl);
         deleteUserBtn = v.findViewById(R.id.deleteUserImgBtn);
         editUsernameBtn = v.findViewById(R.id.editUsernameImgBtn);
         logoutBtn = v.findViewById(R.id.logoutImgBtn);
@@ -75,6 +85,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
 
         deleteUserBtn.setOnClickListener(this);
         editUsernameBtn.setOnClickListener(this);
+        logoutBtn.setOnClickListener(this);
         muteBtn.setOnClickListener(this);
     }
 
@@ -85,7 +96,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
         volumeSb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                backgroundMusicVolume.setValue((float)progress / 100);
+                backgroundMusicVolume.setValue((float) progress / 100);
             }
 
             @Override
@@ -106,6 +117,10 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
         initViews(view);
+
+        String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        String username = User.emailToUsername(email);
+        usernameLbl.setText(username);
 
         return view;
     }
@@ -129,14 +144,68 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.deleteUserImgBtn:
+                tryDeleteUser();
                 break;
             case R.id.editUsernameImgBtn:
                 break;
             case R.id.logoutImgBtn:
+                tryLogout();
                 break;
             case R.id.muteImgBtn:
                 toggleMute();
                 break;
         }
+    }
+
+    private void tryLogout() {
+        FirebaseAuth.getInstance().signOut();
+
+        Intent intent = new Intent(getContext(), LoginActivity.class);
+        startActivity(intent);
+        getActivity().finish();
+    }
+
+    private void tryDeleteUser() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Enter password:");
+        EditText passwordTxt = new EditText(getContext());
+        builder.setView(passwordTxt);
+        builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+
+                        if (passwordTxt.getText().length() == 0)
+                            Toast.makeText(getContext(), "Please enter password", Toast.LENGTH_SHORT).show();
+                        else
+                            // sign in again, necessary before deleting user
+                            firebaseAuth.signInWithEmailAndPassword(firebaseAuth.getCurrentUser().getEmail(), passwordTxt.getText().toString())
+                                    .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                                        @Override
+                                        public void onSuccess(AuthResult authResult) {
+                                            //delete user
+                                            FirebaseAuth.getInstance().getCurrentUser().delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void unused) {
+                                                    Intent intent = new Intent(getContext(), LoginActivity.class);
+                                                    startActivity(intent);
+                                                    getActivity().finish();
+                                                }
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Toast.makeText(getContext(), "Couldn't delete user", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Toast.makeText(getContext(), "Couldn't delete user", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                    }
+                })
+                .setNegativeButton("Cancel", null).show();
     }
 }

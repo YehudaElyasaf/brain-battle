@@ -74,7 +74,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void signup(String username, String password, String passwordAgain) {
-        //TODO: sign in with user instead of mail
+        //validate username
+        if(usernameTxt.getText().toString().indexOf('@') != -1){
+            //username is added '@1.1' to be an email address, therefore it mustn't have @ in it
+            loginStatusLbl.setText("Username mustn't include '@'");
+            setWrongColors(usernameTxt);
+            return;
+        }
+
         if (!password.equals(passwordAgain)) {
             loginStatusLbl.setText("Passwords doesn't match");
             passwordTxt.setText("");
@@ -89,7 +96,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         if (!validateUsernameAnsPassword(username, password))
             return;
 
-        String email = username;
+        String email = User.usernameToEmail(username);
 
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
@@ -98,7 +105,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     //add user to users list
                     User user = new User(username, FirebaseAuth.getInstance().getUid(), 0, 0, 0);
                     FirebaseFirestore.getInstance().
-                            collection(GameActivity.USERS_COLLECTION_PATH).document(email).set(user).
+                            collection(GameActivity.USERS_COLLECTION_PATH).document(username).set(user).
                             addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
@@ -185,10 +192,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         String password = sharedPreferences.getString(LOGIN_PREFERENCES_PASSWORD, null);
 
         //if shared preferences was found, show saved username and password in EditTexts
-        if (username != null)
+        if (username != null){
             usernameTxt.setText(username);
-        if (password != null)
+            rememberMeCb.setChecked(true);
+        }
+        if (password != null){
             passwordTxt.setText(password);
+            rememberMeCb.setChecked(true);
+        }
     }
 
     private void setWrongColors(EditText editText) {

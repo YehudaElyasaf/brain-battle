@@ -21,8 +21,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-
-            <!--TODO: home onclick-->
             <ImageButton
                 android:id="@+id/homeBtn"
                 android:layout_width="50dp"

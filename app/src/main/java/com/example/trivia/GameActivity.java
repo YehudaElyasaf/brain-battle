@@ -1,6 +1,7 @@
 package com.example.trivia;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -8,6 +9,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -86,8 +88,28 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         firestore = FirebaseFirestore.getInstance();
         //is creator = is this player the game creator
         gameVM.setCreator(getIntent().getBooleanExtra(IS_NEW_GAME_EXTRA, false));
+        //TODO: (not here) - disable buttons when fragments shown
+        //create alert builder to exit alert
+        AlertDialog.Builder exitAlertDialogBuilder = new AlertDialog.Builder(this);
+        exitAlertDialogBuilder.setMessage("Exit?");
+        exitAlertDialogBuilder.setNegativeButton("No", null);
+        exitAlertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //exit
+                Intent intent = new Intent(getBaseContext(), MainMenuActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+        homeImgBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //ask if user is sure
+                exitAlertDialogBuilder.show();
+            }
+        });
 
-        homeImgBtn.setOnClickListener(this);
         for (Button answer : answerButtons)
             answer.setOnClickListener(this);
         recordImgBtn.setOnTouchListener(this);
@@ -257,6 +279,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     //game loaded successfully
+                    //TODO: check if player2 is null. else, game already started
                     if (documentSnapshot.exists()) {
                         Game game = documentSnapshot.toObject(Game.class);
 

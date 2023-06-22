@@ -13,9 +13,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 enum Mode {
@@ -60,13 +63,45 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void login(String username, String password) {
         if (!validateUsernameAnsPassword(username, password))
             return;
-        FirebaseAuth.getInstance().signInWithEmailAndPassword(username, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+        FirebaseAuth.getInstance().signInWithEmailAndPassword(User.usernameToEmail(username), password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    startMainMenuActivity();
-                    //TODO: if user isn't listed in "users" list, then create user and add it
+                    //if user isn't listed in "users" list, then create user and add it
                     //can happen if user was signed in and had an connection error before he was added to list
+                    String username = User.emailToUsername(task.getResult().getUser().getEmail());
+                    String uid = task.getResult().getUser().getUid();
+                    FirebaseFirestore.getInstance()
+                            .collection(GameActivity.USERS_COLLECTION_PATH).document(username).get()
+                                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                            if(!documentSnapshot.exists()){
+                                                //user isn't in users list
+                                                FirebaseFirestore.getInstance()
+                                                        .collection(GameActivity.USERS_COLLECTION_PATH).document(username)
+                                                        .set(new User(username, uid, 0, 0, 0))
+                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                if(task.isSuccessful())
+                                                                    startMainMenuActivity();
+                                                                else
+                                                                    loginStatusLbl.setText(task.getException().getMessage());
+                                                            }
+                                                        });
+                                            }
+                                            else
+                                                //user is already in users list
+                                                startMainMenuActivity();
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    loginStatusLbl.setText(e.getMessage());
+                                }
+                            });
+
                 } else
                     loginStatusLbl.setText(task.getException().getMessage());
             }
@@ -75,7 +110,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void signup(String username, String password, String passwordAgain) {
         //validate username
-        if(usernameTxt.getText().toString().indexOf('@') != -1){
+        if (usernameTxt.getText().toString().indexOf('@') != -1) {
             //username is added '@1.1' to be an email address, therefore it mustn't have @ in it
             loginStatusLbl.setText("Username mustn't include '@'");
             setWrongColors(usernameTxt);
@@ -192,11 +227,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         String password = sharedPreferences.getString(LOGIN_PREFERENCES_PASSWORD, null);
 
         //if shared preferences was found, show saved username and password in EditTexts
-        if (username != null){
+        if (username != null) {
             usernameTxt.setText(username);
             rememberMeCb.setChecked(true);
         }
-        if (password != null){
+        if (password != null) {
             passwordTxt.setText(password);
             rememberMeCb.setChecked(true);
         }

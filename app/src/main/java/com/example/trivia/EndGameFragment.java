@@ -129,6 +129,7 @@ public class EndGameFragment extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.endGameReplayBtn:
+                //TODO: implement buttons
                 break;
             case R.id.endGameHomeBtn:
                 Intent intent = new Intent(getContext(), MainMenuActivity.class);

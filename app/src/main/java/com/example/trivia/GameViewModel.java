@@ -1,6 +1,7 @@
 package com.example.trivia;
 
 import android.content.Context;
+import android.content.Intent;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -119,6 +120,13 @@ public class GameViewModel extends ViewModel {
                         }
                     }
                 }
+                else if(error != null){
+                    //unknown error
+                    Toast.makeText(context, "An error occurred!", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(context, MainMenuActivity.class);
+                    context.startActivity(intent);
+                    ((GameActivity) context).finish();
+                }
             }
         });
 
@@ -134,7 +142,9 @@ public class GameViewModel extends ViewModel {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
                                     Toast.makeText(context, "Connection error!", Toast.LENGTH_SHORT).show();
-                                    //TODO: exit screen
+                                    Intent intent = new Intent(context, MainMenuActivity.class);
+                                    context.startActivity(intent);
+                                    ((GameActivity) context).finish();
                                 }
                             });
 

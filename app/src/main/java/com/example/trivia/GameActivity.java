@@ -99,7 +99,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //exit
-                //TODO: set game to null
                 Intent intent = new Intent(getBaseContext(), MainMenuActivity.class);
                 startActivity(intent);
                 finish();
@@ -113,6 +112,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+        //TODO: fix answerButtons colors
         for (Button answer : answerButtons)
             answer.setOnClickListener(this);
         recordImgBtn.setOnTouchListener(this);

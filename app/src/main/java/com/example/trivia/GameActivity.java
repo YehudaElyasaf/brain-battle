@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -89,6 +90,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         //is creator = is this player the game creator
         gameVM.setCreator(getIntent().getBooleanExtra(IS_NEW_GAME_EXTRA, false));
         //TODO: (not here) - disable buttons when fragments shown
+
         //create alert builder to exit alert
         AlertDialog.Builder exitAlertDialogBuilder = new AlertDialog.Builder(this);
         exitAlertDialogBuilder.setMessage("Exit?");
@@ -97,6 +99,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //exit
+                //TODO: set game to null
                 Intent intent = new Intent(getBaseContext(), MainMenuActivity.class);
                 startActivity(intent);
                 finish();
@@ -279,9 +282,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     //game loaded successfully
-                    //TODO: check if player2 is null. else, game already started
+
                     if (documentSnapshot.exists()) {
                         Game game = documentSnapshot.toObject(Game.class);
+
+                        //check if game started
+                        if (game.getPlayer2() != null) {
+                            //game already started
+                            Toast.makeText(getContext(), "Game has already started", Toast.LENGTH_SHORT).show();
+                            backToMainMenu();
+                        }
 
                         gameVM.setGame(game);
                         gameVM.enableGameSyncWithFirestore(GameActivity.this);
@@ -326,7 +336,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if(documentSnapshot.exists()){
+                        if (documentSnapshot.exists()) {
                             //game ID already taken
                             //generate new ID (recursively)
                             sendGameToFirestore();
@@ -502,5 +512,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         return true;
+    }
+
+    private Context getContext() {
+        return this;
     }
 }

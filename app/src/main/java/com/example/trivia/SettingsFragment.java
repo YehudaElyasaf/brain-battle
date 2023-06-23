@@ -147,6 +147,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
                 tryDeleteUser();
                 break;
             case R.id.editUsernameImgBtn:
+                //TODO: implement
                 break;
             case R.id.logoutImgBtn:
                 tryLogout();

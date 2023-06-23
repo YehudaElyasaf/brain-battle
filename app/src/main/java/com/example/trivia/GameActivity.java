@@ -158,6 +158,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         } else {
             //screen already initialized
+            hideFragment(loadingFragment);
             showCurrentQuestion();
         }
     }

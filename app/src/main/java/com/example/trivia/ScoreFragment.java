@@ -30,6 +30,7 @@ import java.util.ArrayList;
  * create an instance of this fragment.
  */
 public class ScoreFragment extends Fragment {
+    //fix crash when exiting
     RecyclerView scoreRv;
     CircularProgressBar successPercentagePb;
     TextView totalScoreLbl;

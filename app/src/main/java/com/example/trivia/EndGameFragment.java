@@ -107,6 +107,7 @@ public class EndGameFragment extends Fragment implements View.OnClickListener {
             winnerLbl.setText("You won!");
             yourScoreCountLbl.setTextSize(TypedValue.COMPLEX_UNIT_SP, 84);
 
+            //TODO: decrease score
             //decreaseScore(enemyScore, enemyScoreCountLbl);
         }
         else if(yourScore < enemyScore){

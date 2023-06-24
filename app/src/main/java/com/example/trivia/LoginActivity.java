@@ -26,8 +26,6 @@ enum Mode {
     SIGNUP
 }
 
-//TODO: broadcast/content (not here)
-
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
     private static final int MIN_PASSWORD_LENGTH = 6;
     private static final String LOGIN_PREFERENCES_FILE = "loginSp";

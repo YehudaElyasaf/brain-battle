@@ -2,11 +2,11 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/gameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".GameActivity"
     android:orientation="vertical"
-    android:id="@+id/gameLayout">
+    tools:context=".GameActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -25,8 +25,8 @@
                 android:id="@+id/homeBtn"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:scaleType="fitCenter"
                 android:padding="6dp"
+                android:scaleType="fitCenter"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -121,6 +121,18 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:srcCompat="@drawable/ic_launcher_background" />
+
+        <ImageView
+            android:id="@+id/noInternetImg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0.4"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/no_internet" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

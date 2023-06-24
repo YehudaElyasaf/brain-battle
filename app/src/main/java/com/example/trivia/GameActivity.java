@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -12,10 +11,13 @@ import androidx.lifecycle.ViewModelProvider;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
@@ -87,10 +89,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         recordImgBtn = findViewById(R.id.recordImgBtn);
         progressImg = findViewById(R.id.progressImg);
 
+        startNetworkStatusReceiver();
+
         gameVM = new ViewModelProvider(this).get(GameViewModel.class);
         firestore = FirebaseFirestore.getInstance();
         //is creator = is this player the game creator
         gameVM.setCreator(getIntent().getBooleanExtra(IS_NEW_GAME_EXTRA, false));
+
         //TODO: (not here) - disable buttons when fragments shown
 
         //create alert builder to exit alert
@@ -520,5 +525,15 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private Context getContext() {
         return this;
+    }
+
+    private void startNetworkStatusReceiver() {
+        ImageView img = findViewById(R.id.noInternetImg);
+        NetworkStatusReceiver networkStatusReceiver = new NetworkStatusReceiver(img);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            registerReceiver(networkStatusReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            registerReceiver(networkStatusReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 }

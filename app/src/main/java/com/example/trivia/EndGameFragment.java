@@ -1,23 +1,21 @@
 package com.example.trivia;
 
-import android.app.usage.NetworkStatsManager;
+import static com.example.trivia.GameActivity.CATEGORY_INDEX;
+import static com.example.trivia.GameActivity.DIFFICULTY_LEVEL_INDEX;
+import static com.example.trivia.GameActivity.IS_NEW_GAME_EXTRA;
+import static com.example.trivia.GameActivity.QUESTIONS_COUNT_INDEX;
+
 import android.content.Intent;
-import android.net.Network;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.os.CountDownTimer;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -38,7 +36,7 @@ public class EndGameFragment extends Fragment implements View.OnClickListener {
 
     private ImageButton endGameReplayBtn;
     private ImageButton endGameHomeBtn;
-    private ImageButton endGameShareBtn;
+    private ImageButton endGameScoreBtn;
 
     private String mParam1;
     private String mParam2;
@@ -86,10 +84,10 @@ public class EndGameFragment extends Fragment implements View.OnClickListener {
 
         endGameReplayBtn = view.findViewById(R.id.endGameReplayBtn);
         endGameHomeBtn = view.findViewById(R.id.endGameHomeBtn);
-        endGameShareBtn = view.findViewById(R.id.endGameShareBtn);
+        endGameScoreBtn = view.findViewById(R.id.endGameScoreBtn);
         endGameReplayBtn.setOnClickListener(this);
         endGameHomeBtn.setOnClickListener(this);
-        endGameShareBtn.setOnClickListener(this);
+        endGameScoreBtn.setOnClickListener(this);
 
         showResults(view);
 
@@ -130,16 +128,36 @@ public class EndGameFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
+        Intent intent;
+
         switch (v.getId()){
             case R.id.endGameReplayBtn:
-                //TODO: implement buttons
-                break;
-            case R.id.endGameHomeBtn:
-                Intent intent = new Intent(getContext(), MainMenuActivity.class);
+                intent = new Intent(getActivity(), GameActivity.class);
+
+                int extras[] = new int[3];
+                extras[QUESTIONS_COUNT_INDEX] = gameVM.getGame().getQuestions().size();
+                extras[DIFFICULTY_LEVEL_INDEX]= gameVM.getGame().getQuestions().get(0).difficultyLevel.ordinal();
+                extras[CATEGORY_INDEX] = gameVM.getGame().getQuestions().get(0).category.ordinal();
+                intent.putExtra(GameActivity.NEW_GAME_EXTRAS, extras);
+
+                intent.putExtra(IS_NEW_GAME_EXTRA, true);
                 startActivity(intent);
                 getActivity().finish();
                 break;
-            case R.id.endGameShareBtn:
+            case R.id.endGameHomeBtn:
+                //goto new game fragment
+                intent = new Intent(getContext(), MainMenuActivity.class);
+
+                startActivity(intent);
+                getActivity().finish();
+                break;
+            case R.id.endGameScoreBtn:
+                //goto score fragment
+                intent = new Intent(getContext(), MainMenuActivity.class);
+
+                intent.putExtra(MainMenuActivity.EXTRA_FRAGMENT_NAME, MainMenuActivity.EXTRA_SCORE_FRAGMENT);
+                startActivity(intent);
+                getActivity().finish();
                 break;
         }
     }

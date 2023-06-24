@@ -7,7 +7,6 @@ import androidx.core.view.GestureDetectorCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.GestureDetector;
@@ -19,6 +18,11 @@ import com.google.android.material.navigation.NavigationBarView;
 
 public class MainMenuActivity extends AppCompatActivity
         implements GestureDetector.OnGestureListener {
+    public static final String EXTRA_FRAGMENT_NAME = "fragment";
+    public static final int EXTRA_SCORE_FRAGMENT = 0;
+    public static final int EXTRA_NEW_GAME_FRAGMENT = 1;
+    public static final int EXTRA_JOIN_GAME_FRAGMENT = 2;
+    public static final int EXTRA_SETTINGS_FRAGMENT = 3;
     private static final int MIN_SWIPE_LENGTH = 150;
 
     private GestureDetectorCompat swipeDetector;
@@ -26,7 +30,7 @@ public class MainMenuActivity extends AppCompatActivity
     private NewGameFragment newGameFragment;
     private JoinGameFragment joinGameFragment;
     private ScoreFragment scoreFragment;
-    private SettingsFragment settingFragment;
+    private SettingsFragment settingsFragment;
     private Intent bgMusicIntent;
 
     @Override
@@ -42,11 +46,31 @@ public class MainMenuActivity extends AppCompatActivity
         newGameFragment = new NewGameFragment();
         joinGameFragment = new JoinGameFragment();
         scoreFragment = new ScoreFragment();
-        settingFragment = new SettingsFragment();
+        settingsFragment = new SettingsFragment();
         swipeDetector = new GestureDetectorCompat(this, this);
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, newGameFragment).commit();
-        navigationView.setSelectedItemId(R.id.newGameFragment);
+        //the opening fragment is passed through intent
+        //default is new game fragment
+        int startFragment = getIntent().getIntExtra(EXTRA_FRAGMENT_NAME, -1);
+        switch (startFragment){
+            case EXTRA_SCORE_FRAGMENT:
+                getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, scoreFragment).commit();
+                navigationView.setSelectedItemId(R.id.scoreFragment);
+                break;
+            case EXTRA_JOIN_GAME_FRAGMENT:
+                getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, joinGameFragment).commit();
+                navigationView.setSelectedItemId(R.id.joinGameFragment);
+                break;
+            case EXTRA_SETTINGS_FRAGMENT:
+                getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, settingsFragment).commit();
+                navigationView.setSelectedItemId(R.id.settingsFragment);
+                break;
+            default:
+                //new game fragment
+                getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, newGameFragment).commit();
+                navigationView.setSelectedItemId(R.id.newGameFragment);
+                break;
+        }
 
         navigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
@@ -65,7 +89,7 @@ public class MainMenuActivity extends AppCompatActivity
                         return true;
 
                     case R.id.settingsFragment:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, settingFragment).commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.mainFragmentContainer, settingsFragment).commit();
                         return true;
                 }
 
@@ -131,7 +155,7 @@ public class MainMenuActivity extends AppCompatActivity
                     navigationView.setSelectedItemId(R.id.joinGameFragment);
                 }
                 else if(currentFragment instanceof JoinGameFragment){
-                    fragmentTransaction.replace(R.id.mainFragmentContainer, settingFragment).commit();
+                    fragmentTransaction.replace(R.id.mainFragmentContainer, settingsFragment).commit();
                     navigationView.setSelectedItemId(R.id.settingsFragment);
                 }
             }

@@ -204,7 +204,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         int questionCount = gameVM.getQuestions().size();
         if (gameVM.getOtherPlayer().getCurrentQuestionIndex() == questionCount)
-            //enemy finished too
+            //enemy already finished
             endGame();
         else {
             waitForEnemyFragment = new WaitToEnemyFragment();
@@ -215,21 +215,20 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 public void onChanged(Game game) {
                     if (gameVM.getOtherPlayer().getCurrentQuestionIndex() == questionCount) {
                         //enemy finished
+
+                        //try delete game
+                        //if failed, do nothing
+                        firestore.collection(GAMES_COLLECTION_PATH)
+                                .document(Integer.toString(gameVM.getGame().getId())).delete();
                         hideFragment(waitForEnemyFragment);
                         endGame();
                     }
-
                 }
             });
         }
     }
 
     private void endGame() {
-        //try delete game
-        //if failed, do nothing
-        firestore.collection(GAMES_COLLECTION_PATH)
-                .document(Integer.toString(gameVM.getGame().getId())).delete();
-
         //update user score
         gameVM.getMyPlayer().setTotalCorrect(gameVM.getMyPlayer().getTotalCorrect() + gameVM.getMyPlayer().getTotalCorrectInGame());
         gameVM.getMyPlayer().setTotalWrong(gameVM.getMyPlayer().getTotalWrong() + gameVM.getMyPlayer().getTotalWrongInGame());

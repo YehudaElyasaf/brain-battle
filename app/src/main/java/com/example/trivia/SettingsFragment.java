@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -33,7 +34,6 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
 
     private TextView usernameLbl;
     private ImageButton deleteUserBtn;
-    private ImageButton editUsernameBtn;
     private ImageButton logoutBtn;
     private ImageButton muteBtn;
     private SeekBar volumeSb;
@@ -78,13 +78,11 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
     private void initViews(View v) {
         usernameLbl = v.findViewById(R.id.usernameLbl);
         deleteUserBtn = v.findViewById(R.id.deleteUserImgBtn);
-        editUsernameBtn = v.findViewById(R.id.editUsernameImgBtn);
         logoutBtn = v.findViewById(R.id.logoutImgBtn);
         muteBtn = v.findViewById(R.id.muteImgBtn);
         initVolumeSb(v);
 
         deleteUserBtn.setOnClickListener(this);
-        editUsernameBtn.setOnClickListener(this);
         logoutBtn.setOnClickListener(this);
         muteBtn.setOnClickListener(this);
     }
@@ -145,9 +143,6 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
         switch (v.getId()) {
             case R.id.deleteUserImgBtn:
                 tryDeleteUser();
-                break;
-            case R.id.editUsernameImgBtn:
-                //TODO: implement
                 break;
             case R.id.logoutImgBtn:
                 tryLogout();

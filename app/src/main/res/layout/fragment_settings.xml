@@ -21,8 +21,8 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp"
         android:layout_marginTop="10dp"
+        android:layout_marginBottom="30dp"
         android:gravity="center"
         android:orientation="horizontal">
 
@@ -34,21 +34,13 @@
             android:src="@android:drawable/ic_menu_delete" />
 
         <ImageButton
-            android:id="@+id/editUsernameImgBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="#00FFFFFF"
-            android:paddingLeft="20dp"
-            android:src="@android:drawable/ic_menu_edit" />
-
-        <ImageButton
             android:id="@+id/logoutImgBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="#00FFFFFF"
             android:paddingLeft="20dp"
-            android:src="@android:drawable/ic_menu_upload"
-            android:rotation="90"/>
+            android:rotation="90"
+            android:src="@android:drawable/ic_menu_upload" />
     </LinearLayout>
 
 

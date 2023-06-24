@@ -72,11 +72,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        //show loading fragment
-        //new ShowLoadingFragmentAsync().execute();
-        loadingFragment = new LoadingFragment();
-        showFragment(loadingFragment);
-
         currentQuestionLbl = findViewById(R.id.currentQuestionLbl);
         questionLbl = findViewById(R.id.questionLbl);
         answerButtons = new Button[4];
@@ -95,8 +90,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         firestore = FirebaseFirestore.getInstance();
         //is creator = is this player the game creator
         gameVM.setCreator(getIntent().getBooleanExtra(IS_NEW_GAME_EXTRA, false));
-
-        //TODO: (not here) - disable buttons when fragments shown
 
         //create alert builder to exit alert
         AlertDialog.Builder exitAlertDialogBuilder = new AlertDialog.Builder(this);
@@ -118,6 +111,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 exitAlertDialogBuilder.show();
             }
         });
+
+        //show loading fragment
+        loadingFragment = new LoadingFragment();
+        showFragment(loadingFragment);
 
         //TODO: fix answerButtons colors
         for (Button answer : answerButtons)
@@ -179,19 +176,23 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void showFragment(Fragment fragment) {
+        disableAllButtons();
+
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.gameLayout, fragment);
         fragmentTransaction.commit();
     }
 
     private void hideFragment(Fragment fragment) {
+        enableAllButtons();
+
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.hide(fragment);
         fragmentTransaction.commit();
     }
 
     private void showEndGameFragment() {
-        homeImgBtn.setEnabled(false);
+        disableAllButtons();
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.gameLayout, new EndGameFragment());
@@ -298,7 +299,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         if (game.getPlayer2() != null) {
                             //game already started
                             Toast.makeText(getContext(), "Game has already started", Toast.LENGTH_SHORT).show();
-                            backToMainMenu();
+                            backToJoinGameFragment();
                         }
 
                         gameVM.setGame(game);
@@ -309,26 +310,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                         showCurrentQuestion();
                     } else {
                         Toast.makeText(GameActivity.this, "Wrong game ID!", Toast.LENGTH_SHORT).show();
-                        backToMainMenu();
+                        backToJoinGameFragment();
                     }
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     Toast.makeText(GameActivity.this, "Connection error!", Toast.LENGTH_SHORT).show();
-                    backToMainMenu();
+                    backToJoinGameFragment();
                 }
             });
 
-            return null;
-        }
-    }
-
-    private class ShowLoadingFragmentAsync extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... voids) {
-            loadingFragment = new LoadingFragment();
-            showFragment(loadingFragment);
             return null;
         }
     }
@@ -399,6 +391,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         finish();
     }
 
+    public void backToJoinGameFragment() {
+        Intent intent = new Intent(this, MainMenuActivity.class);
+        intent.putExtra(MainMenuActivity.EXTRA_FRAGMENT_NAME, MainMenuActivity.EXTRA_JOIN_GAME_FRAGMENT);
+        startActivity(intent);
+        finish();
+    }
+
     private void showCurrentQuestion() {
         int currentQuestionIndex = 0;
         Player myPlayer = gameVM.getMyPlayer();
@@ -424,9 +423,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         for (Button answer : answerButtons)
             answer.setBackgroundColor(getResources().getColor(R.color.main_color_500));
 
-        for (Button answerBtn : answerButtons)
-            answerBtn.setEnabled(true);
-        recordImgBtn.setEnabled(true);
+        enableAllButtons();
     }
 
     private void sendAnswer(int answerIndex, Button answerButton) {
@@ -448,9 +445,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         gameVM.setMyCurrentQuestionIndex(currentQuestionIndex + 1);
 
-        for (Button answerBtn : answerButtons)
-            answerBtn.setEnabled(false);
-        recordImgBtn.setEnabled(false);
+        disableAllButtons();
 
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -534,5 +529,18 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             registerReceiver(networkStatusReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             registerReceiver(networkStatusReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+    }
+
+    private void enableAllButtons(){
+        for (Button answerBtn : answerButtons)
+            answerBtn.setEnabled(true);
+        recordImgBtn.setEnabled(true);
+        homeImgBtn.setEnabled(true);
+    }
+    private void disableAllButtons(){
+        for (Button answerBtn : answerButtons)
+            answerBtn.setEnabled(false);
+        recordImgBtn.setEnabled(false);
+        homeImgBtn.setEnabled(false);
     }
 }

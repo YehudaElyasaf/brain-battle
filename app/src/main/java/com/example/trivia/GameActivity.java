@@ -71,7 +71,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_game);
 
         //show loading fragment
-        new ShowLoadingFragmentAsync().execute();
+        //new ShowLoadingFragmentAsync().execute();
+        loadingFragment = new LoadingFragment();
+        showFragment(loadingFragment);
 
         currentQuestionLbl = findViewById(R.id.currentQuestionLbl);
         questionLbl = findViewById(R.id.questionLbl);
@@ -159,6 +161,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             //screen already initialized
             hideFragment(loadingFragment);
+            gameVM.enableGameSyncWithFirestore(GameActivity.this);
             showCurrentQuestion();
         }
     }

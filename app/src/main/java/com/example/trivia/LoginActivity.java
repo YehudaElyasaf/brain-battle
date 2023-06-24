@@ -111,14 +111,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void signup(String username, String password, String passwordAgain) {
-        //validate username
-        if (usernameTxt.getText().toString().indexOf('@') != -1) {
-            //username is added '@1.1' to be an email address, therefore it mustn't have @ in it
-            loginStatusLbl.setText("Username mustn't include '@'");
-            setWrongColors(usernameTxt);
-            return;
-        }
-
         if (!password.equals(passwordAgain)) {
             loginStatusLbl.setText("Passwords doesn't match");
             passwordTxt.setText("");
@@ -159,21 +151,26 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private boolean validateUsernameAnsPassword(String username, String password) {
-        boolean retValue = true;
+        if (usernameTxt.getText().toString().indexOf('@') != -1) {
+            //username is added '@1.1' to be an email address, therefore it mustn't have @ in it
+            loginStatusLbl.setText("Username mustn't include '@'");
+            setWrongColors(usernameTxt);
+            return false;
+        }
 
         if (username.length() == 0) {
             loginStatusLbl.setText(loginStatusLbl.getText() + "\nPlease enter username");
             setWrongColors(usernameTxt);
-            retValue = false;
+            return false;
         }
         if (password.length() < MIN_PASSWORD_LENGTH) {
             loginStatusLbl.setText(loginStatusLbl.getText() + "\nPassword must be at least 6 characters");
             setWrongColors(passwordTxt);
             setWrongColors(passwordAgainTxt);
-            retValue = false;
+            return false;
         }
 
-        return retValue;
+        return true;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.example.trivia;
 
+import kotlin.NotImplementedError;
+
 public class User {
     protected String username;
     protected String uid;
@@ -75,9 +77,5 @@ public class User {
 
     public void setScore(int score) {
         this.score = score;
-    }
-
-    public String getEmail() {
-        return usernameToEmail(username);
     }
 }

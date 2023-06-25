@@ -522,22 +522,22 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void startNetworkStatusReceiver() {
+        //create receiver
         ImageView img = findViewById(R.id.noInternetImg);
         NetworkStatusReceiver networkStatusReceiver = new NetworkStatusReceiver(img);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-            registerReceiver(networkStatusReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            registerReceiver(networkStatusReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        //run receiver
+        registerReceiver(networkStatusReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
-    private void enableAllButtons(){
+    private void enableAllButtons() {
         for (Button answerBtn : answerButtons)
             answerBtn.setEnabled(true);
         recordImgBtn.setEnabled(true);
         homeImgBtn.setEnabled(true);
     }
-    private void disableAllButtons(){
+
+    private void disableAllButtons() {
         for (Button answerBtn : answerButtons)
             answerBtn.setEnabled(false);
         recordImgBtn.setEnabled(false);
